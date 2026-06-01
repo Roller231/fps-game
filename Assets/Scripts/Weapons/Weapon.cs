@@ -137,13 +137,22 @@ public class Weapon : MonoBehaviour
                 var proj = go.GetComponent<Projectile>();
                 if (proj == null) proj = go.AddComponent<Projectile>();
                 float speed = 200f; // default speed if projectile doesn't set it
-                Vector3 vel = dir * speed;
+                Vector3 vel = (muzzle != null ? muzzle.forward : dir) * speed;
                 proj.Launch(vel, data.damage, data.impactForce, data.impactPrefab, hitMask);
+
+                if (data.projectileTracerPrefab != null)
+                {
+                    var tracer = Instantiate(data.projectileTracerPrefab, go.transform.position, go.transform.rotation, go.transform);
+                    if (tracer.TryGetComponent<Rigidbody>(out var trb)) trb.isKinematic = true;
+                }
             }
             else
             {
+                Vector3 start = origin;
+                Vector3 end = origin + dir * data.range;
                 if (Physics.Raycast(origin, dir, out RaycastHit hit, data.range, hitMask, QueryTriggerInteraction.Ignore))
                 {
+                    end = hit.point;
                     float dmg = data.damage;
                     if (hit.collider.CompareTag("Head")) dmg *= data.headshotMultiplier;
 
@@ -160,19 +169,19 @@ public class Weapon : MonoBehaviour
                         var fx = Instantiate(data.impactPrefab, hit.point, Quaternion.LookRotation(hit.normal));
                         Destroy(fx, 3f);
                     }
+                }
 
-                    if (data.tracerPrefab != null)
+                if (data.tracerPrefab != null)
+                {
+                    var tracer = Instantiate(data.tracerPrefab, muzzle != null ? muzzle.position : start, Quaternion.identity);
+                    var lr = tracer.GetComponent<LineRenderer>();
+                    if (lr != null)
                     {
-                        var tracer = Instantiate(data.tracerPrefab, muzzle != null ? muzzle.position : origin, Quaternion.identity);
-                        var lr = tracer.GetComponent<LineRenderer>();
-                        if (lr != null)
-                        {
-                            lr.positionCount = 2;
-                            lr.SetPosition(0, muzzle != null ? muzzle.position : origin);
-                            lr.SetPosition(1, hit.point);
-                        }
-                        Destroy(tracer, 0.2f);
+                        lr.positionCount = 2;
+                        lr.SetPosition(0, muzzle != null ? muzzle.position : start);
+                        lr.SetPosition(1, end);
                     }
+                    Destroy(tracer, data.tracerLifetime);
                 }
             }
         }
@@ -180,7 +189,7 @@ public class Weapon : MonoBehaviour
         if (data.muzzleFlashPrefab != null && muzzle != null)
         {
             var mf = Instantiate(data.muzzleFlashPrefab, muzzle.position, muzzle.rotation, muzzle);
-            Destroy(mf, 1f);
+            Destroy(mf, data.muzzleFlashLifetime);
         }
 
         if (data.fireSound != null) audioSource.PlayOneShot(data.fireSound);

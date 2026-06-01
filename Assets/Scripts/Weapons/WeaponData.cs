@@ -53,6 +53,9 @@ public class WeaponData : ScriptableObject
     public GameObject impactPrefab;
     [Tooltip("If set, weapon fires projectiles instead of hitscan")] public GameObject projectilePrefab;
     [Tooltip("Optional tracer prefab for hitscan (LineRenderer or simple VFX)")] public GameObject tracerPrefab;
+    [Tooltip("Optional trail/tracer to attach to physical projectiles")] public GameObject projectileTracerPrefab;
+    [Tooltip("Lifetime of muzzle flash instance (seconds)")] public float muzzleFlashLifetime = 0.5f;
+    [Tooltip("Lifetime of tracer instance (seconds)")] public float tracerLifetime = 0.2f;
     public AudioClip fireSound;
     public AudioClip reloadSound;
 
