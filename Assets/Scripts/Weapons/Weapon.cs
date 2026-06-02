@@ -138,7 +138,7 @@ public class Weapon : MonoBehaviour
                 if (proj == null) proj = go.AddComponent<Projectile>();
                 float speed = 200f; // default speed if projectile doesn't set it
                 Vector3 vel = (muzzle != null ? muzzle.forward : dir) * speed;
-                proj.Launch(vel, data.damage, data.impactForce, data.impactPrefab, hitMask, data.enemyImpactPrefab);
+                proj.Launch(vel, data.damage, data.impactForce, data.impactPrefab, hitMask, data.enemyImpactPrefab, data.headshotMultiplier);
 
                 if (data.projectileTracerPrefab != null)
                 {

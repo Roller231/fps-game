@@ -42,4 +42,12 @@ public class Health : MonoBehaviour, IDamageable
         currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
+
+    // Restore to full health and clear death flag (useful for respawn)
+    public void ResetToFull()
+    {
+        isDead = false;
+        currentHealth = maxHealth;
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+    }
 }

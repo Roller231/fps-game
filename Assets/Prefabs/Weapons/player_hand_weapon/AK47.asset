@@ -37,6 +37,7 @@ MonoBehaviour:
   reloadTime: 1.8
   muzzleFlashPrefab: {fileID: 100006, guid: 2f7910242354c78419d50ac9e64b496f, type: 3}
   impactPrefab: {fileID: 100002, guid: 556d09d7fda29fd4185eed4067d5777b, type: 3}
+  enemyImpactPrefab: {fileID: 100002, guid: ac1aa04288fad804ba1cd769f4377aaf, type: 3}
   projectilePrefab: {fileID: 1494961727190713312, guid: ccc9fc532e2e38b4e863e81be8c225a7, type: 3}
   tracerPrefab: {fileID: 0}
   projectileTracerPrefab: {fileID: 0}

@@ -7,6 +7,7 @@ public class Projectile : MonoBehaviour
     [SerializeField] private float maxLifeTime = 5f;
     [SerializeField] private float gravity = 0f;
     [SerializeField] private float damage = 10f;
+    [SerializeField] private float headshotMultiplier = 2f;
     [SerializeField] private float impactForce = 10f;
     [SerializeField] private GameObject impactPrefab;
     [SerializeField] private GameObject enemyImpactPrefab;
@@ -97,12 +98,13 @@ public class Projectile : MonoBehaviour
         }
     }
 
-    public void Launch(Vector3 velocity, float dmg, float force, GameObject impactFx, LayerMask mask, GameObject enemyImpactFx = null)
+    public void Launch(Vector3 velocity, float dmg, float force, GameObject impactFx, LayerMask mask, GameObject enemyImpactFx = null, float headshotMul = 1f)
     {
         damage = dmg;
         impactForce = force;
         impactPrefab = impactFx;
         enemyImpactPrefab = enemyImpactFx;
+        headshotMultiplier = headshotMul;
         hitMask = mask;
         rb.velocity = velocity;
     }
@@ -123,10 +125,12 @@ public class Projectile : MonoBehaviour
         if (allowed)
         {
             var dmg = collision.collider.GetComponentInParent<IDamageable>();
+            bool isHead = collision.collider.CompareTag("Head");
             bool hitEnemy = dmg != null;
             if (hitEnemy)
             {
-                dmg.TakeDamage(damage, contact.point, contact.normal);
+                float appliedDamage = isHead ? damage * headshotMultiplier : damage;
+                dmg.TakeDamage(appliedDamage, contact.point, contact.normal);
             }
             if (collision.rigidbody != null)
             {

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6753879655877975260}
   - component: {fileID: 6794091207168578264}
   - component: {fileID: 5160771432876139669}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Assault57
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 4432395325835373790}
   - component: {fileID: 5548821516332017823}
   - component: {fileID: 1073517418627996025}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Assault57_PREFAB
   m_TagString: eq
   m_Icon: {fileID: 0}

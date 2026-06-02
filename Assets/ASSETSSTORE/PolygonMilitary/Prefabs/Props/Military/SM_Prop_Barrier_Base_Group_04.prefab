@@ -16,7 +16,6 @@ GameObject:
   - component: {fileID: 64321866201669532}
   - component: {fileID: 64369279376666086}
   - component: {fileID: 3170071069179201759}
-  - component: {fileID: 2782033624301604460}
   - component: {fileID: 3958837662643404043}
   m_Layer: 9
   m_Name: SM_Prop_Barrier_Base_Group_04
@@ -197,27 +196,6 @@ MonoBehaviour:
   m_IgnoreFromBuild: 0
   m_ApplyToChildren: 1
   m_AffectedAgents: ffffffff
---- !u!65 &2782033624301604460
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1850104582247172}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 8.954042, y: 2.1944447, z: 3.0797484}
-  m_Center: {x: 0, y: 1.0972223, z: 0}
 --- !u!208 &3958837662643404043
 NavMeshObstacle:
   m_ObjectHideFlags: 0

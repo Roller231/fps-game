@@ -14,6 +14,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float coyoteTime = 0.1f;
     [SerializeField] private float jumpBufferTime = 0.1f;
 
+    [Header("Ladder")]
+    [SerializeField] private LayerMask ladderMask;
+    [SerializeField] private float ladderCheckRadius = 0.35f;
+    [SerializeField] private float climbSpeed = 3f;
+
     [Header("Mouse Look")]
     [SerializeField] private Transform playerCamera;
     [SerializeField] private WeaponHolder weaponHolder;
@@ -27,6 +32,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isGrounded;
     private float lastTimeGrounded;
     private float lastTimeJumpPressed;
+    private bool onLadder;
 
     private void Awake()
     {
@@ -40,6 +46,7 @@ public class PlayerMovement : MonoBehaviour
     {
         HandleLook();
         UpdateGrounded();
+        UpdateLadder();
         HandleMovement();
     }
 
@@ -67,9 +74,12 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleMovement()
     {
-        if (isGrounded && velocity.y < 0f)
+        if (!onLadder)
         {
-            velocity.y = -2f;
+            if (isGrounded && velocity.y < 0f)
+            {
+                velocity.y = -2f;
+            }
         }
 
         float horizontal = Input.GetAxisRaw("Horizontal");
@@ -82,20 +92,29 @@ public class PlayerMovement : MonoBehaviour
         float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
         characterController.Move(moveDirection * currentSpeed * Time.deltaTime);
 
-        if (Input.GetButtonDown("Jump"))
+        if (!onLadder)
         {
-            lastTimeJumpPressed = Time.time;
+            if (Input.GetButtonDown("Jump"))
+            {
+                lastTimeJumpPressed = Time.time;
+            }
+
+            bool canCoyote = Time.time - lastTimeGrounded <= coyoteTime;
+            bool buffered = Time.time - lastTimeJumpPressed <= jumpBufferTime;
+            if (buffered && (isGrounded || canCoyote))
+            {
+                velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+                lastTimeJumpPressed = -999f; // consume buffer
+            }
+
+            velocity.y += gravity * Time.deltaTime;
+        }
+        else
+        {
+            // ladder climb: vertical input drives Y, no gravity
+            velocity.y = vertical * climbSpeed;
         }
 
-        bool canCoyote = Time.time - lastTimeGrounded <= coyoteTime;
-        bool buffered = Time.time - lastTimeJumpPressed <= jumpBufferTime;
-        if (buffered && (isGrounded || canCoyote))
-        {
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-            lastTimeJumpPressed = -999f; // consume buffer
-        }
-
-        velocity.y += gravity * Time.deltaTime;
         characterController.Move(velocity * Time.deltaTime);
     }
 
@@ -108,5 +127,16 @@ public class PlayerMovement : MonoBehaviour
         bool hit = Physics.SphereCast(origin, radius, Vector3.down, out RaycastHit hitInfo, castDist, groundMask, QueryTriggerInteraction.Ignore);
         isGrounded = hit;
         if (isGrounded) lastTimeGrounded = Time.time;
+    }
+
+    private void UpdateLadder()
+    {
+        // Check small sphere to see if we're inside ladder volume
+        onLadder = Physics.CheckSphere(transform.position, ladderCheckRadius, ladderMask, QueryTriggerInteraction.Collide);
+        if (onLadder)
+        {
+            // reset vertical velocity to prevent gravity pull when entering
+            velocity.y = 0f;
+        }
     }
 }

@@ -19,6 +19,7 @@ TagManager:
   - petrol
   - targets
   - rycle
+  - Head
   layers:
   - Default
   - TransparentFX
@@ -30,8 +31,8 @@ TagManager:
   - Enemy
   - Player
   - Obstance
-  - 
-  - 
+  - Head
+  - 'Ladder '
   - 
   - 
   - 
