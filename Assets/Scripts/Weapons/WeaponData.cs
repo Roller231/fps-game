@@ -51,6 +51,8 @@ public class WeaponData : ScriptableObject
     [Header("FX")]
     public GameObject muzzleFlashPrefab;
     public GameObject impactPrefab;
+    [Tooltip("Optional impact FX when hitting enemies (overrides impactPrefab for enemies)")]
+    public GameObject enemyImpactPrefab;
     [Tooltip("If set, weapon fires projectiles instead of hitscan")] public GameObject projectilePrefab;
     [Tooltip("Optional tracer prefab for hitscan (LineRenderer or simple VFX)")] public GameObject tracerPrefab;
     [Tooltip("Optional trail/tracer to attach to physical projectiles")] public GameObject projectileTracerPrefab;

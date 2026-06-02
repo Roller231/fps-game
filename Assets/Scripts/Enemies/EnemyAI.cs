@@ -10,11 +10,21 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private Transform shootOrigin;
     [SerializeField] private GameObject bulletPrefab; // optional for shooters
     [SerializeField] private float bulletSpeed = 45f;
+    [SerializeField] private LayerMask obstacleMask = ~0; // for line-of-sight blocking
+    [Header("Rotation")]
+    [SerializeField] private float turnSpeedDegPerSec = 720f;
+    [SerializeField] private float turnStepClampDeg = 120f; // max rotation per frame
+    [SerializeField] private float yawOffsetDeg = 0f; // additional yaw offset when facing target
+    [Header("Anim")]
+    [SerializeField] private Animator animator;
+    [SerializeField] private string animSpeedParam = "Speed";
+    [SerializeField] private string animShootBool = "Shoot";
 
     private NavMeshAgent agent;
     private Health health;
     private float nextAttackTime;
     private bool isDead;
+    private bool shootState;
 
     public EnemyData Data => data;
     public Health Health => health;
@@ -22,12 +32,56 @@ public class EnemyAI : MonoBehaviour
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
+        if (agent != null) agent.updateRotation = false;
         health = GetComponent<Health>();
+        if (animator == null) animator = GetComponentInChildren<Animator>();
+        if (animator != null) animator.applyRootMotion = false;
         if (data != null)
         {
             ApplyData(data);
         }
         health.OnDied.AddListener(OnDeath);
+    }
+
+    private void AdjustPathIfBlocked()
+    {
+        if (agent == null) return;
+        if (target == null) return;
+        if (agent.pathPending || !agent.hasPath) return;
+        if (agent.pathStatus != NavMeshPathStatus.PathPartial) return;
+
+        Vector3 dir = target.position - transform.position;
+        dir.y = 0f;
+        if (dir.sqrMagnitude < 0.0001f) return;
+
+        if (NavMesh.Raycast(transform.position, target.position, out NavMeshHit hit, NavMesh.AllAreas))
+        {
+            Vector3 stopPos = hit.position - dir.normalized * Mathf.Max(agent.radius, 0.2f);
+            if (NavMesh.SamplePosition(stopPos, out NavMeshHit snap, agent.radius * 1.5f, NavMesh.AllAreas))
+            {
+                agent.SetDestination(snap.position);
+            }
+        }
+    }
+
+    private void FaceTarget()
+    {
+        if (target == null || agent == null) return;
+        Vector3 flatDir = target.position - transform.position;
+        flatDir.y = 0f;
+        if (flatDir.sqrMagnitude < 0.0001f) return;
+
+        Quaternion desired = Quaternion.LookRotation(flatDir.normalized, Vector3.up);
+        if (Mathf.Abs(yawOffsetDeg) > 0.01f)
+        {
+            desired = Quaternion.Euler(0f, yawOffsetDeg, 0f) * desired;
+        }
+        float step = turnSpeedDegPerSec * Time.deltaTime;
+        if (turnStepClampDeg > 0f)
+        {
+            step = Mathf.Min(step, turnStepClampDeg);
+        }
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, desired, step);
     }
 
     public void ApplyData(EnemyData d)
@@ -70,6 +124,9 @@ public class EnemyAI : MonoBehaviour
         }
 
         agent.SetDestination(target.position);
+        AdjustPathIfBlocked();
+        FaceTarget();
+        UpdateAnimSpeed();
 
         float dist = Vector3.Distance(transform.position, target.position);
         switch (data.archetype)
@@ -77,9 +134,13 @@ public class EnemyAI : MonoBehaviour
             case EnemyArchetype.Melee:
             case EnemyArchetype.Heavy:
             case EnemyArchetype.Boss:
+                agent.isStopped = false;
+                SetShoot(false);
                 HandleMelee(dist);
                 break;
             case EnemyArchetype.Kamikaze:
+                agent.isStopped = false;
+                SetShoot(false);
                 HandleKamikaze(dist);
                 break;
             case EnemyArchetype.Shooter:
@@ -108,8 +169,35 @@ public class EnemyAI : MonoBehaviour
 
     private void HandleShooter(float dist)
     {
-        if (dist > data.shootRange) return;
-        if (Time.time < nextAttackTime) return;
+        bool inRange = dist <= data.shootRange;
+        agent.isStopped = inRange;
+        if (!inRange)
+        {
+            SetShoot(false);
+            return;
+        }
+        // In range: keep shoot anim on
+        SetShoot(true);
+
+        // Line of sight check: if something blocks, keep moving closer
+        Vector3 toTarget = target.position - shootOrigin.position;
+        float maxDist = toTarget.magnitude;
+        if (Physics.Raycast(shootOrigin.position, toTarget.normalized, out RaycastHit losHit, maxDist, obstacleMask, QueryTriggerInteraction.Ignore))
+        {
+            // If мы попали не в цель, не стреляем
+            if (losHit.transform != target && losHit.collider.GetComponentInParent<EnemyAI>() == null)
+            {
+                SetShoot(false);
+                // в радиусе, но нет прямой видимости — продолжаем идти к цели, чтобы выйти на линию
+                agent.isStopped = false;
+                return;
+            }
+        }
+
+        if (Time.time < nextAttackTime)
+        {
+            return;
+        }
         nextAttackTime = Time.time + 1f / Mathf.Max(0.01f, data.attackRate);
 
         Vector3 dir = (target.position - shootOrigin.position).normalized;
@@ -132,6 +220,8 @@ public class EnemyAI : MonoBehaviour
         {
             rb.velocity = dir * bulletSpeed;
         }
+        // keep shooting state while in range
+        SetShoot(true);
     }
 
     private void DealDamage(Transform t, float amount)
@@ -165,5 +255,24 @@ public class EnemyAI : MonoBehaviour
         if (isDead) return;
         isDead = true;
         Destroy(gameObject, 0.1f);
+    }
+
+    private void UpdateAnimSpeed()
+    {
+        if (animator == null || string.IsNullOrEmpty(animSpeedParam)) return;
+        float speedValue = 0f;
+        if (agent != null)
+        {
+            speedValue = agent.isStopped ? 0f : agent.velocity.magnitude;
+        }
+        animator.SetFloat(animSpeedParam, speedValue);
+    }
+
+    private void SetShoot(bool value)
+    {
+        if (animator == null || string.IsNullOrEmpty(animShootBool)) return;
+        if (shootState == value) return;
+        shootState = value;
+        animator.SetBool(animShootBool, shootState);
     }
 }

@@ -27,9 +27,9 @@ TagManager:
   - Water
   - UI
   - Weapon
-  - 
-  - 
-  - 
+  - Enemy
+  - Player
+  - Obstance
   - 
   - 
   - 

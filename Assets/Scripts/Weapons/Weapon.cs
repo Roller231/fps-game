@@ -138,7 +138,7 @@ public class Weapon : MonoBehaviour
                 if (proj == null) proj = go.AddComponent<Projectile>();
                 float speed = 200f; // default speed if projectile doesn't set it
                 Vector3 vel = (muzzle != null ? muzzle.forward : dir) * speed;
-                proj.Launch(vel, data.damage, data.impactForce, data.impactPrefab, hitMask);
+                proj.Launch(vel, data.damage, data.impactForce, data.impactPrefab, hitMask, data.enemyImpactPrefab);
 
                 if (data.projectileTracerPrefab != null)
                 {
@@ -157,14 +157,22 @@ public class Weapon : MonoBehaviour
                     if (hit.collider.CompareTag("Head")) dmg *= data.headshotMultiplier;
 
                     var damageable = hit.collider.GetComponentInParent<IDamageable>();
-                    damageable?.TakeDamage(dmg, hit.point, hit.normal);
+                    if (damageable != null)
+                    {
+                        damageable.TakeDamage(dmg, hit.point, hit.normal);
+                        if (data.enemyImpactPrefab != null)
+                        {
+                            var efx = Instantiate(data.enemyImpactPrefab, hit.point, Quaternion.LookRotation(hit.normal));
+                            Destroy(efx, 3f);
+                        }
+                    }
 
                     if (hit.rigidbody != null)
                     {
                         hit.rigidbody.AddForceAtPosition(dir * data.impactForce, hit.point, ForceMode.Impulse);
                     }
 
-                    if (data.impactPrefab != null)
+                    if (damageable == null && data.impactPrefab != null)
                     {
                         var fx = Instantiate(data.impactPrefab, hit.point, Quaternion.LookRotation(hit.normal));
                         Destroy(fx, 3f);
