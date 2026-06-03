@@ -12,6 +12,7 @@ public class Projectile : MonoBehaviour
     [SerializeField] private GameObject impactPrefab;
     [SerializeField] private GameObject enemyImpactPrefab;
     [SerializeField] private LayerMask hitMask = ~0;
+    [SerializeField] private LayerMask bloodLayers = 0;
     [SerializeField] private LineRenderer lineTracer;
     [Header("Trail")]
     [SerializeField] private bool autoAddTrail = true;
@@ -120,14 +121,16 @@ public class Projectile : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         bool allowed = ((1 << collision.gameObject.layer) & hitMask) != 0;
+        bool blood = ((1 << collision.gameObject.layer) & bloodLayers) != 0;
 
         var contact = collision.contacts.Length > 0 ? collision.contacts[0] : default;
         if (allowed)
         {
             var dmg = collision.collider.GetComponentInParent<IDamageable>();
             bool isHead = collision.collider.CompareTag("Head");
-            bool hitEnemy = dmg != null;
-            if (hitEnemy)
+            bool hasEnemyAI = collision.collider.GetComponentInParent<EnemyAI>() != null;
+            bool playBloodFx = blood || hasEnemyAI;
+            if (dmg != null)
             {
                 float appliedDamage = isHead ? damage * headshotMultiplier : damage;
                 dmg.TakeDamage(appliedDamage, contact.point, contact.normal);
@@ -136,12 +139,12 @@ public class Projectile : MonoBehaviour
             {
                 collision.rigidbody.AddForceAtPosition(rb.velocity.normalized * impactForce, contact.point, ForceMode.Impulse);
             }
-            if (hitEnemy && enemyImpactPrefab != null)
+            if (playBloodFx && enemyImpactPrefab != null)
             {
                 var fx = Instantiate(enemyImpactPrefab, contact.point, Quaternion.LookRotation(contact.normal));
                 Destroy(fx, 3f);
             }
-            else if (!hitEnemy && impactPrefab != null)
+            else if (!playBloodFx && impactPrefab != null)
             {
                 var fx = Instantiate(impactPrefab, contact.point, Quaternion.LookRotation(contact.normal));
                 Destroy(fx, 3f);

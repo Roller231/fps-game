@@ -63,6 +63,8 @@ public class PlayerHealthController : MonoBehaviour
         if (playerCamera != null) playerCamera.gameObject.SetActive(false);
         if (freeLookCamera != null) freeLookCamera.SetActive(true);
 
+        if (GameManager.Instance != null) GameManager.Instance.SetPlayer(null);
+
         StartCoroutine(RespawnRoutine());
     }
 
@@ -86,6 +88,8 @@ public class PlayerHealthController : MonoBehaviour
         }
         if (weaponRoot != null) weaponRoot.SetActive(true);
         if (movement != null) movement.enabled = true;
+
+        if (GameManager.Instance != null) GameManager.Instance.SetPlayer(transform);
     }
 
     private void PlayVignette()

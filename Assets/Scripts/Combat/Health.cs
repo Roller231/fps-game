@@ -50,4 +50,13 @@ public class Health : MonoBehaviour, IDamageable
         currentHealth = maxHealth;
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
+
+    // Set a new maximum health (e.g. wave scaling). Optionally refill to full.
+    public void SetMaxHealth(float value, bool refill = true)
+    {
+        maxHealth = Mathf.Max(1f, value);
+        isDead = false;
+        currentHealth = refill ? maxHealth : Mathf.Min(currentHealth, maxHealth);
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+    }
 }

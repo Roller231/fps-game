@@ -229,11 +229,16 @@ MonoBehaviour:
   maxLifeTime: 5
   gravity: 0
   damage: 10
+  headshotMultiplier: 2
   impactForce: 10
   impactPrefab: {fileID: 0}
+  enemyImpactPrefab: {fileID: 0}
   hitMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 3583
+  bloodLayers:
+    serializedVersion: 2
+    m_Bits: 1152
   lineTracer: {fileID: 0}
   autoAddTrail: 1
   trailTime: 0.2

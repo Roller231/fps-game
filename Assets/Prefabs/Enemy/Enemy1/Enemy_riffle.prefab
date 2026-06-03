@@ -348,12 +348,29 @@ MonoBehaviour:
   obstacleMask:
     serializedVersion: 2
     m_Bits: 512
+  playerDetectRange: 20
+  playerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   turnSpeedDegPerSec: 720
   turnStepClampDeg: 120
   yawOffsetDeg: 57
+  repathInterval: 0.4
+  repathPositionThreshold: 0.75
+  playerStickyTime: 1.5
+  partialRepathCooldown: 1
+  dynamicTargetTag: Player
+  dynamicTargetMask:
+    serializedVersion: 2
+    m_Bits: 0
+  preferChildNavPoint: 1
+  staticApproachSampleRadius: 2
+  staticApproachEdgeSnap: 1
+  staticApproachInward: 0.7
   animator: {fileID: 0}
   animSpeedParam: Speed
   animShootBool: Shoot
+  shootRangeHysteresis: 1
 --- !u!114 &6459599155515249127
 MonoBehaviour:
   m_ObjectHideFlags: 0

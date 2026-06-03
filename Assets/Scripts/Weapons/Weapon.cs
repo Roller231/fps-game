@@ -5,6 +5,7 @@ public class Weapon : MonoBehaviour
     [SerializeField] private WeaponData data;
     [SerializeField] private Transform muzzle;
     [SerializeField] private LayerMask hitMask = ~0;
+    [SerializeField] private LayerMask bloodLayers = 0;
 
     private Camera fireCamera;
     private AudioSource audioSource;
@@ -160,11 +161,6 @@ public class Weapon : MonoBehaviour
                     if (damageable != null)
                     {
                         damageable.TakeDamage(dmg, hit.point, hit.normal);
-                        if (data.enemyImpactPrefab != null)
-                        {
-                            var efx = Instantiate(data.enemyImpactPrefab, hit.point, Quaternion.LookRotation(hit.normal));
-                            Destroy(efx, 3f);
-                        }
                     }
 
                     if (hit.rigidbody != null)
@@ -172,7 +168,15 @@ public class Weapon : MonoBehaviour
                         hit.rigidbody.AddForceAtPosition(dir * data.impactForce, hit.point, ForceMode.Impulse);
                     }
 
-                    if (damageable == null && data.impactPrefab != null)
+                    bool hasEnemyAI = hit.collider.GetComponentInParent<EnemyAI>() != null;
+                    bool blood = ((1 << hit.collider.gameObject.layer) & bloodLayers) != 0;
+                    bool playBloodFx = blood || hasEnemyAI;
+                    if (playBloodFx && data.enemyImpactPrefab != null)
+                    {
+                        var efx = Instantiate(data.enemyImpactPrefab, hit.point, Quaternion.LookRotation(hit.normal));
+                        Destroy(efx, 3f);
+                    }
+                    else if (!playBloodFx && data.impactPrefab != null)
                     {
                         var fx = Instantiate(data.impactPrefab, hit.point, Quaternion.LookRotation(hit.normal));
                         Destroy(fx, 3f);

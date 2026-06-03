@@ -18,10 +18,10 @@ MonoBehaviour:
   tintColor: {r: 1, g: 1, b: 1, a: 1}
   baseHealth: 100
   moveSpeed: 3.5
-  damage: 10
+  damage: 5
   attackRange: 2
   attackRate: 1
-  shootRange: 25
+  shootRange: 17
   shootSpread: 2.5
   shootMask:
     serializedVersion: 2

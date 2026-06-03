@@ -1,0 +1,52 @@
+using UnityEngine;
+
+/// <summary>
+/// Центральная точка доступа к игроку и базе.
+/// Враги (EnemyAI) используют этот синглтон для выбора цели.
+/// </summary>
+public class GameManager : MonoBehaviour
+{
+    public static GameManager Instance { get; private set; }
+
+    [Header("Player")]
+    [SerializeField] private Transform player;
+    [Tooltip("Если Player не задан вручную, будет найден по тегу.")]
+    [SerializeField] private string playerTag = "Player";
+
+    [Header("Base")]
+    [SerializeField] private BaseManager baseManager;
+
+    public Transform Player => player;
+    public BaseManager Base => baseManager;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+
+        if (player == null && !string.IsNullOrEmpty(playerTag))
+        {
+            var go = GameObject.FindGameObjectWithTag(playerTag);
+            if (go != null) player = go.transform;
+        }
+        if (baseManager == null) baseManager = FindObjectOfType<BaseManager>();
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
+    /// <summary>Регистрация игрока во время выполнения (например, после спавна).</summary>
+    public void SetPlayer(Transform t) => player = t;
+
+    /// <summary>Ближайшая живая часть базы относительно позиции (для наведения врагов).</summary>
+    public Health GetClosestAliveBase(Vector3 fromPosition)
+    {
+        return baseManager != null ? baseManager.GetClosestAlive(fromPosition) : null;
+    }
+}
