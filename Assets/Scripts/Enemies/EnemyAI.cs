@@ -65,6 +65,8 @@ public class EnemyAI : MonoBehaviour
     private bool isStaticTarget;
     private bool hasStaticApproach;
     private Vector3 staticApproachPos;
+    private Health currentBase;
+    private Transform desiredTarget;
 
     private float Damage => (data != null ? data.damage : 0f) * damageMul;
 
@@ -92,20 +94,33 @@ public class EnemyAI : MonoBehaviour
         bool seesPlayerNow = player != null && IsPlayerVisible(player);
         if (seesPlayerNow) lastSeenPlayerTime = Time.time;
         bool sticky = player != null && (Time.time - lastSeenPlayerTime) <= playerStickyTime;
+
+        Transform want;
         if (seesPlayerNow || sticky)
         {
-            SetTarget(player);
-            return;
+            currentBase = null; // переключились на игрока
+            want = player;
         }
-
-        Health basePart = GameManager.Instance != null ? GameManager.Instance.GetClosestAliveBase(transform.position) : null;
-        if (basePart != null)
+        else
         {
-            SetTarget(basePart.transform);
-            return;
+            // Не перевыбираем ближайшую базу каждый кадр — это и вызывало постоянный
+            // перерасчёт пути (на стене из множества блоков "ближайший" постоянно меняется).
+            // Держим выбранную часть базы, пока она не уничтожена.
+            if (currentBase == null || currentBase.IsDead)
+            {
+                currentBase = GameManager.Instance != null
+                    ? GameManager.Instance.GetClosestAliveBase(transform.position)
+                    : null;
+            }
+            want = currentBase != null ? currentBase.transform : desiredTarget;
         }
 
-        // fallback to existing target if still set
+        // Меняем цель (и сбрасываем путь) только когда логическая цель реально сменилась.
+        if (want != desiredTarget)
+        {
+            desiredTarget = want;
+            SetTarget(want);
+        }
     }
 
     private bool IsPlayerVisible(Transform player)
@@ -279,11 +294,12 @@ public class EnemyAI : MonoBehaviour
         }
         else
         {
-            // Статические цели: задать один раз, либо если путь потерян/неполный
-            mustUpdate = !destinationInitialized
-                         || !agent.hasPath
-                         || agent.pathStatus == NavMeshPathStatus.PathInvalid
-                         || agent.pathStatus == NavMeshPathStatus.PathPartial;
+            // Статические цели (база/сооружения): путь задаём ОДИН раз.
+            // Намеренно НЕ репатчим на PathPartial/PathInvalid: для целей с NavMeshObstacle
+            // (Carve) путь почти всегда частичный (упирается в вырез), и повторный
+            // SetDestination каждый кадр вызывал баг с дёрганьем. Агент сам дойдёт до края
+            // выреза у объекта и остановится.
+            mustUpdate = !destinationInitialized || !agent.hasPath;
         }
         if (mustUpdate)
         {
@@ -292,7 +308,9 @@ public class EnemyAI : MonoBehaviour
             nextRepathTime = Time.time + repathInterval;
             destinationInitialized = true;
         }
-        AdjustPathIfBlocked();
+        // Корректировка частичного пути — только для динамических целей (игрок).
+        // Для статичных частичный путь это норма (упёрлись в obstacle) и репатч не нужен.
+        if (isDynamic) AdjustPathIfBlocked();
         FaceTarget();
         UpdateAnimSpeed();
 
@@ -320,7 +338,7 @@ public class EnemyAI : MonoBehaviour
     private void HandleMelee(float dist)
     {
         if (Time.time < nextAttackTime) return;
-        if (dist <= data.attackRange)
+        if (dist <= data.attackRange || HasArrived())
         {
             nextAttackTime = Time.time + 1f / Mathf.Max(0.01f, data.attackRate);
             DealDamage(target, Damage);
@@ -329,10 +347,19 @@ public class EnemyAI : MonoBehaviour
 
     private void HandleKamikaze(float dist)
     {
-        if (dist <= data.attackRange)
+        if (dist <= data.attackRange || HasArrived())
         {
             Explode();
         }
+    }
+
+    // Агент дошёл до конца проложенного пути (например, упёрся в obstacle цели).
+    // Позволяет атаковать сооружение с NavMeshObstacle, даже если центр объекта дальше attackRange.
+    private bool HasArrived()
+    {
+        if (agent == null || agent.pathPending || !agent.hasPath) return false;
+        if (agent.remainingDistance > agent.stoppingDistance + 0.15f) return false;
+        return agent.velocity.sqrMagnitude < 0.04f;
     }
 
     private void HandleShooter(float dist)

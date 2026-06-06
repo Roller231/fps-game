@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/ASSETSSTORE/PolygonMilitary/Scenes/Demo_01.unity
+    guid: 93195e8f68a149f49a51512a91091643
   m_configObjects: {}

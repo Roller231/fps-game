@@ -366,7 +366,7 @@ MonoBehaviour:
   preferChildNavPoint: 1
   staticApproachSampleRadius: 2
   staticApproachEdgeSnap: 1
-  staticApproachInward: 0.7
+  staticApproachInward: 3
   animator: {fileID: 0}
   animSpeedParam: Speed
   animShootBool: Shoot
