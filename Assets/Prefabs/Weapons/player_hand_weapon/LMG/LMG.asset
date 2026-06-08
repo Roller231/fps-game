@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29eacff61527fc34eac0cce4f7312ba5, type: 3}
+  m_Name: LMG
+  m_EditorClassIdentifier: 
+  weaponName: LMG
+  icon: {fileID: 21300000, guid: 10e075e3ab10b11478a21045507166a2, type: 3}
+  viewModelPrefab: {fileID: 8874857685131155350, guid: 297a59068892200419a3221e0625f194, type: 3}
+  damage: 26
+  headshotMultiplier: 1.8
+  range: 220
+  impactForce: 22
+  fireMode: 1
+  fireRate: 550
+  burstCount: 3
+  pelletsPerShot: 1
+  spreadAngle: 0.7
+  recoilPerShot: {x: 0.28, y: 0.13}
+  hipLocalPos: {x: 0.25, y: -0.25, z: 0.5}
+  adsLocalPos: {x: 0, y: -0.21, z: 0.25}
+  hipFov: 48
+  adsFov: 0
+  adsBlendTime: 0.22
+  adsSpreadMultiplier: 0.35
+  adsRecoilMultiplier: 0.4
+  magazineSize: 100
+  reservedAmmo: 300
+  reloadTime: 3.5
+  muzzleFlashPrefab: {fileID: 100006, guid: 2f7910242354c78419d50ac9e64b496f, type: 3}
+  impactPrefab: {fileID: 100002, guid: 556d09d7fda29fd4185eed4067d5777b, type: 3}
+  enemyImpactPrefab: {fileID: 100002, guid: ac1aa04288fad804ba1cd769f4377aaf, type: 3}
+  projectilePrefab: {fileID: 1494961727190713312, guid: ccc9fc532e2e38b4e863e81be8c225a7, type: 3}
+  tracerPrefab: {fileID: 0}
+  projectileTracerPrefab: {fileID: 0}
+  muzzleFlashLifetime: 0.15
+  tracerLifetime: 0.22
+  fireSound: {fileID: 8300000, guid: 1d63c3d4ac4ee084b9bbab76e08710be, type: 3}
+  reloadSound: {fileID: 8300000, guid: 5f2aa57c1c47a35449398dd6f95097c8, type: 3}
+  hitmarkerSound: {fileID: 8300000, guid: 428a1bfd64c9a7a45bdf3ac0dd055e59, type: 3}

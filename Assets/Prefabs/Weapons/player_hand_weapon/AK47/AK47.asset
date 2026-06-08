@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29eacff61527fc34eac0cce4f7312ba5, type: 3}
+  m_Name: AK47
+  m_EditorClassIdentifier: 
+  weaponName: AK47
+  icon: {fileID: 21300000, guid: 18636b9bd6f78314aaa665b13fa8aa00, type: 3}
+  viewModelPrefab: {fileID: 2612097996548242878, guid: 380a1db463340df4e9ef54d081013263, type: 3}
+  damage: 15
+  headshotMultiplier: 2
+  range: 100
+  impactForce: 20
+  fireMode: 1
+  fireRate: 600
+  burstCount: 3
+  pelletsPerShot: 1
+  spreadAngle: 0
+  recoilPerShot: {x: 0.25, y: 0.12}
+  hipLocalPos: {x: 0.24, y: -0.21, z: 0.71}
+  adsLocalPos: {x: 0, y: -0.16, z: 0.3}
+  hipFov: 40
+  adsFov: 24
+  adsBlendTime: 0.12
+  adsSpreadMultiplier: 0.1
+  adsRecoilMultiplier: 0.5
+  magazineSize: 30
+  reservedAmmo: 120
+  reloadTime: 1.8
+  muzzleFlashPrefab: {fileID: 100006, guid: 2f7910242354c78419d50ac9e64b496f, type: 3}
+  impactPrefab: {fileID: 100002, guid: 556d09d7fda29fd4185eed4067d5777b, type: 3}
+  enemyImpactPrefab: {fileID: 100002, guid: ac1aa04288fad804ba1cd769f4377aaf, type: 3}
+  projectilePrefab: {fileID: 1494961727190713312, guid: ccc9fc532e2e38b4e863e81be8c225a7, type: 3}
+  tracerPrefab: {fileID: 0}
+  projectileTracerPrefab: {fileID: 0}
+  muzzleFlashLifetime: 0.2
+  tracerLifetime: 0.2
+  fireSound: {fileID: 8300000, guid: 34da24e1d179a9f4cb4fb58bff4e5144, type: 3}
+  reloadSound: {fileID: 8300000, guid: 3f300d25af2255146b220ff5353ba0f9, type: 3}
+  hitmarkerSound: {fileID: 8300000, guid: 428a1bfd64c9a7a45bdf3ac0dd055e59, type: 3}

@@ -10,38 +10,38 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 29eacff61527fc34eac0cce4f7312ba5, type: 3}
-  m_Name: AK47
+  m_Name: DMR
   m_EditorClassIdentifier: 
-  weaponName: AK47
-  icon: {fileID: 21300000, guid: 18636b9bd6f78314aaa665b13fa8aa00, type: 3}
-  viewModelPrefab: {fileID: 2612097996548242878, guid: 380a1db463340df4e9ef54d081013263, type: 3}
-  damage: 15
-  headshotMultiplier: 2
-  range: 100
-  impactForce: 20
-  fireMode: 1
-  fireRate: 600
+  weaponName: DMR
+  icon: {fileID: 0}
+  viewModelPrefab: {fileID: 0}
+  damage: 65
+  headshotMultiplier: 2.5
+  range: 350
+  impactForce: 35
+  fireMode: 0
+  fireRate: 240
   burstCount: 3
   pelletsPerShot: 1
-  spreadAngle: 0
-  recoilPerShot: {x: 1, y: 0.6}
-  hipLocalPos: {x: 0.24, y: -0.21, z: 0.71}
-  adsLocalPos: {x: 0, y: -0.16, z: 0.3}
-  hipFov: 40
-  adsFov: 24
-  adsBlendTime: 0.12
-  adsSpreadMultiplier: 0.1
-  adsRecoilMultiplier: 0.5
-  magazineSize: 30
-  reservedAmmo: 120
-  reloadTime: 1.8
+  spreadAngle: 0.2
+  recoilPerShot: {x: 0.35, y: 0.16}
+  hipLocalPos: {x: 0.25, y: -0.25, z: 0.5}
+  adsLocalPos: {x: 0, y: -0.05, z: 0.25}
+  hipFov: 0
+  adsFov: 45
+  adsBlendTime: 0.2
+  adsSpreadMultiplier: 0.15
+  adsRecoilMultiplier: 0.32
+  magazineSize: 20
+  reservedAmmo: 100
+  reloadTime: 2.3
   muzzleFlashPrefab: {fileID: 100006, guid: 2f7910242354c78419d50ac9e64b496f, type: 3}
   impactPrefab: {fileID: 100002, guid: 556d09d7fda29fd4185eed4067d5777b, type: 3}
   enemyImpactPrefab: {fileID: 100002, guid: ac1aa04288fad804ba1cd769f4377aaf, type: 3}
-  projectilePrefab: {fileID: 1494961727190713312, guid: ccc9fc532e2e38b4e863e81be8c225a7, type: 3}
+  projectilePrefab: {fileID: 0}
   tracerPrefab: {fileID: 0}
   projectileTracerPrefab: {fileID: 0}
-  muzzleFlashLifetime: 0.2
-  tracerLifetime: 0.2
+  muzzleFlashLifetime: 0.15
+  tracerLifetime: 0.25
   fireSound: {fileID: 0}
   reloadSound: {fileID: 0}

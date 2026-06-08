@@ -48,6 +48,7 @@ public class EnemyAI : MonoBehaviour
 
     private NavMeshAgent agent;
     private Health health;
+    private AudioSource audioSource;
     private float nextAttackTime;
     private bool isDead;
     private bool shootState;
@@ -77,6 +78,13 @@ public class EnemyAI : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         if (agent != null) agent.updateRotation = false;
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 1f;
+        audioSource.volume = 0.4f;
+        audioSource.minDistance = 5f;
+        audioSource.maxDistance = 50f;
         health = GetComponent<Health>();
         if (animator == null) animator = GetComponentInChildren<Animator>();
         if (animator != null) animator.applyRootMotion = false;
@@ -341,6 +349,7 @@ public class EnemyAI : MonoBehaviour
         if (dist <= data.attackRange || HasArrived())
         {
             nextAttackTime = Time.time + 1f / Mathf.Max(0.01f, data.attackRate);
+            PlayAttackSound();
             DealDamage(target, Damage);
         }
     }
@@ -402,6 +411,7 @@ public class EnemyAI : MonoBehaviour
             return;
         }
         nextAttackTime = Time.time + 1f / Mathf.Max(0.01f, data.attackRate);
+        PlayAttackSound();
 
         Vector3 dir = GetSpreadDirection(shootOrigin.position, aimPoint, data.shootSpread);
 
@@ -482,6 +492,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (isDead) return;
         isDead = true;
+        PlayDeathSound();
         Destroy(gameObject, 0.1f);
     }
 
@@ -511,6 +522,22 @@ public class EnemyAI : MonoBehaviour
         if (!string.IsNullOrEmpty(dynamicTargetTag) && t.CompareTag(dynamicTargetTag)) return true;
         if (dynamicTargetMask != 0 && ((1 << t.gameObject.layer) & dynamicTargetMask) != 0) return true;
         return false;
+    }
+
+    private void PlayAttackSound()
+    {
+        if (audioSource != null && data != null && data.attackSound != null)
+        {
+            audioSource.PlayOneShot(data.attackSound);
+        }
+    }
+
+    private void PlayDeathSound()
+    {
+        if (audioSource != null && data != null && data.deathSound != null)
+        {
+            audioSource.PlayOneShot(data.deathSound);
+        }
     }
 
     private Transform FindChildByName(Transform root, string name)

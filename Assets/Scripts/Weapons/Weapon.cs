@@ -32,6 +32,7 @@ public class Weapon : MonoBehaviour
         if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.playOnAwake = false;
         audioSource.spatialBlend = 0f;
+        audioSource.volume = 0.3f;
 
         if (muzzle == null)
         {
@@ -139,7 +140,7 @@ public class Weapon : MonoBehaviour
                 if (proj == null) proj = go.AddComponent<Projectile>();
                 float speed = 200f; // default speed if projectile doesn't set it
                 Vector3 vel = (muzzle != null ? muzzle.forward : dir) * speed;
-                proj.Launch(vel, data.damage, data.impactForce, data.impactPrefab, hitMask, data.enemyImpactPrefab, data.headshotMultiplier);
+                proj.Launch(vel, data.damage, data.impactForce, data.impactPrefab, hitMask, data.enemyImpactPrefab, data.headshotMultiplier, data.hitmarkerSound);
 
                 if (data.projectileTracerPrefab != null)
                 {
@@ -171,10 +172,14 @@ public class Weapon : MonoBehaviour
                     bool hasEnemyAI = hit.collider.GetComponentInParent<EnemyAI>() != null;
                     bool blood = ((1 << hit.collider.gameObject.layer) & bloodLayers) != 0;
                     bool playBloodFx = blood || hasEnemyAI;
-                    if (playBloodFx && data.enemyImpactPrefab != null)
+                    if (playBloodFx)
                     {
-                        var efx = Instantiate(data.enemyImpactPrefab, hit.point, Quaternion.LookRotation(hit.normal));
-                        Destroy(efx, 3f);
+                        if (data.hitmarkerSound != null) audioSource.PlayOneShot(data.hitmarkerSound);
+                        if (data.enemyImpactPrefab != null)
+                        {
+                            var efx = Instantiate(data.enemyImpactPrefab, hit.point, Quaternion.LookRotation(hit.normal));
+                            Destroy(efx, 3f);
+                        }
                     }
                     else if (!playBloodFx && data.impactPrefab != null)
                     {
@@ -200,7 +205,7 @@ public class Weapon : MonoBehaviour
 
         if (data.muzzleFlashPrefab != null && muzzle != null)
         {
-            var mf = Instantiate(data.muzzleFlashPrefab, muzzle.position, muzzle.rotation, muzzle);
+var mf = Instantiate(data.muzzleFlashPrefab, muzzle.position, muzzle.rotation, muzzle);
             Destroy(mf, data.muzzleFlashLifetime);
         }
 

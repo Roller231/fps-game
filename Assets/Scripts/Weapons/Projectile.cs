@@ -25,6 +25,8 @@ public class Projectile : MonoBehaviour
     private Vector3 prevPos;
     private TrailRenderer trail;
     private static Material defaultTrailMaterial;
+    private AudioClip hitmarkerSound;
+    private static AudioSource staticAudioSource;
 
     private void Awake()
     {
@@ -99,7 +101,7 @@ public class Projectile : MonoBehaviour
         }
     }
 
-    public void Launch(Vector3 velocity, float dmg, float force, GameObject impactFx, LayerMask mask, GameObject enemyImpactFx = null, float headshotMul = 1f)
+    public void Launch(Vector3 velocity, float dmg, float force, GameObject impactFx, LayerMask mask, GameObject enemyImpactFx = null, float headshotMul = 1f, AudioClip hitSound = null)
     {
         damage = dmg;
         impactForce = force;
@@ -107,6 +109,7 @@ public class Projectile : MonoBehaviour
         enemyImpactPrefab = enemyImpactFx;
         headshotMultiplier = headshotMul;
         hitMask = mask;
+        hitmarkerSound = hitSound;
         rb.velocity = velocity;
     }
 
@@ -139,10 +142,25 @@ public class Projectile : MonoBehaviour
             {
                 collision.rigidbody.AddForceAtPosition(rb.velocity.normalized * impactForce, contact.point, ForceMode.Impulse);
             }
-            if (playBloodFx && enemyImpactPrefab != null)
+            if (playBloodFx)
             {
-                var fx = Instantiate(enemyImpactPrefab, contact.point, Quaternion.LookRotation(contact.normal));
-                Destroy(fx, 3f);
+                if (hitmarkerSound != null)
+                {
+                    if (staticAudioSource == null)
+                    {
+                        var go = new GameObject("ProjectileHitmarkerAudio");
+                        staticAudioSource = go.AddComponent<AudioSource>();
+                        staticAudioSource.playOnAwake = false;
+                        staticAudioSource.spatialBlend = 0f;
+                        DontDestroyOnLoad(go);
+                    }
+                    staticAudioSource.PlayOneShot(hitmarkerSound);
+                }
+                if (enemyImpactPrefab != null)
+                {
+                    var fx = Instantiate(enemyImpactPrefab, contact.point, Quaternion.LookRotation(contact.normal));
+                    Destroy(fx, 3f);
+                }
             }
             else if (!playBloodFx && impactPrefab != null)
             {

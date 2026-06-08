@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 /// <summary>
 /// Помечает объект как часть базы игрока. Требует Health.
@@ -43,6 +44,11 @@ public class BasePart : MonoBehaviour
 
     private void OnDied()
     {
+        var obstacles = GetComponentsInChildren<NavMeshObstacle>(true);
+        for (int i = 0; i < obstacles.Length; i++)
+        {
+            if (obstacles[i] != null) obstacles[i].enabled = false;
+        }
         if (manager != null) manager.NotifyPartDestroyed(this);
     }
 

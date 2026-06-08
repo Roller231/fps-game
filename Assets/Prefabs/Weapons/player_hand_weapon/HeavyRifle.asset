@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29eacff61527fc34eac0cce4f7312ba5, type: 3}
+  m_Name: HeavyRifle
+  m_EditorClassIdentifier: 
+  weaponName: Heavy Rifle
+  icon: {fileID: 0}
+  viewModelPrefab: {fileID: 0}
+  damage: 45
+  headshotMultiplier: 2.2
+  range: 250
+  impactForce: 45
+  fireMode: 1
+  fireRate: 420
+  burstCount: 3
+  pelletsPerShot: 1
+  spreadAngle: 0.35
+  recoilPerShot: {x: 0.32, y: 0.15}
+  hipLocalPos: {x: 0.25, y: -0.25, z: 0.5}
+  adsLocalPos: {x: 0, y: -0.05, z: 0.25}
+  hipFov: 0
+  adsFov: 48
+  adsBlendTime: 0.2
+  adsSpreadMultiplier: 0.22
+  adsRecoilMultiplier: 0.36
+  magazineSize: 25
+  reservedAmmo: 125
+  reloadTime: 2.4
+  muzzleFlashPrefab: {fileID: 100006, guid: 2f7910242354c78419d50ac9e64b496f, type: 3}
+  impactPrefab: {fileID: 100002, guid: 556d09d7fda29fd4185eed4067d5777b, type: 3}
+  enemyImpactPrefab: {fileID: 100002, guid: ac1aa04288fad804ba1cd769f4377aaf, type: 3}
+  projectilePrefab: {fileID: 0}
+  tracerPrefab: {fileID: 0}
+  projectileTracerPrefab: {fileID: 0}
+  muzzleFlashLifetime: 0.15
+  tracerLifetime: 0.23
+  fireSound: {fileID: 0}
+  reloadSound: {fileID: 0}

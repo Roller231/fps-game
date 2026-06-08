@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 33250657273314326}
   - component: {fileID: 23638669172779760}
   - component: {fileID: 64968861445502960}
-  - component: {fileID: 609382209916450470}
   - component: {fileID: 6925969538200227828}
   m_Layer: 9
   m_Name: SM_Bld_GasTower_02
@@ -108,25 +107,6 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 43407503529462732, guid: d9674faaace0a0d48a53df6062021572, type: 2}
---- !u!114 &609382209916450470
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1567714049985256}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_OverrideArea: 1
-  m_Area: 1
-  m_OverrideGenerateLinks: 0
-  m_GenerateLinks: 0
-  m_IgnoreFromBuild: 0
-  m_ApplyToChildren: 1
-  m_AffectedAgents: ffffffff
 --- !u!208 &6925969538200227828
 NavMeshObstacle:
   m_ObjectHideFlags: 0

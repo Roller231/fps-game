@@ -60,6 +60,7 @@ public class WeaponData : ScriptableObject
     [Tooltip("Lifetime of tracer instance (seconds)")] public float tracerLifetime = 0.2f;
     public AudioClip fireSound;
     public AudioClip reloadSound;
+    public AudioClip hitmarkerSound;
 
     public float SecondsBetweenShots => fireRate > 0f ? 60f / fireRate : 0f;
 }

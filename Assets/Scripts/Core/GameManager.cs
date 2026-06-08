@@ -16,8 +16,14 @@ public class GameManager : MonoBehaviour
     [Header("Base")]
     [SerializeField] private BaseManager baseManager;
 
+    [Header("Economy")]
+    [SerializeField] private int startingMoney = 500;
+
+    private int currentMoney;
+
     public Transform Player => player;
     public BaseManager Base => baseManager;
+    public int Money => currentMoney;
 
     private void Awake()
     {
@@ -34,6 +40,8 @@ public class GameManager : MonoBehaviour
             if (go != null) player = go.transform;
         }
         if (baseManager == null) baseManager = FindObjectOfType<BaseManager>();
+        
+        currentMoney = PlayerPrefs.GetInt("PlayerMoney", startingMoney);
     }
 
     private void OnDestroy()
