@@ -51,6 +51,7 @@ public class EnemyAI : MonoBehaviour
     private AudioSource audioSource;
     private float nextAttackTime;
     private bool isDead;
+    private bool exploded;
     private bool shootState;
     private float healthMul = 1f;
     private float damageMul = 1f;
@@ -475,25 +476,84 @@ public class EnemyAI : MonoBehaviour
     private void Explode()
     {
         if (isDead) return;
-        // Simple sphere damage
-        Collider[] hits = Physics.OverlapSphere(transform.position, data.explosionRadius, data.shootMask, QueryTriggerInteraction.Ignore);
-        foreach (var h in hits)
+        if (exploded) return;
+        exploded = true;
+        // Damage with distance falloff
+        DoExplosionDamage();
+        // Spawn VFX if assigned
+        if (data != null && data.explosionVfx != null)
         {
-            var dmg = h.GetComponentInParent<IDamageable>();
-            if (dmg != null)
-            {
-                dmg.TakeDamage(data.explosionDamage * damageMul, transform.position, Vector3.up);
-            }
+            var vfx = Instantiate(data.explosionVfx, transform.position, Quaternion.identity);
+            // Отвязать от врага на случай уничтожения объекта
+            if (vfx.transform.parent != null) vfx.transform.SetParent(null);
+            // Автоудаление, если у эффекта нет своего авто-деспавна
+            if (data.explosionVfxLifetime > 0f)
+                Destroy(vfx, data.explosionVfxLifetime);
         }
-        OnDeath();
+        else
+        {
+            Debug.LogWarning("Kamikaze explode: explosionVfx is not assigned in EnemyData");
+        }
+        // Play explosion sound if provided (3D at point, independent of existing AudioSource)
+        if (data != null && data.explosionSound != null)
+        {
+            AudioSource.PlayClipAtPoint(data.explosionSound, transform.position, 1f);
+        }
+        else
+        {
+            Debug.LogWarning("Kamikaze explode: explosionSound is not assigned in EnemyData");
+        }
+        // Завершить через систему Health, чтобы сработали все подписчики OnDied (WaveSpawner и т.п.)
+        if (health != null && !health.IsDead)
+        {
+            health.TakeDamage(health.Max, transform.position, Vector3.up);
+        }
+        else
+        {
+            // fallback, если нет Health
+            isDead = true;
+            Destroy(gameObject, 0.05f);
+        }
+        return;
     }
 
     private void OnDeath()
     {
         if (isDead) return;
         isDead = true;
+        // Камикадзе взрывается при смерти, если не успел взорваться до этого
+        if (data != null && data.archetype == EnemyArchetype.Kamikaze && !exploded)
+        {
+            exploded = true;
+            DoExplosionDamage();
+            if (data.explosionVfx != null)
+            {
+                Instantiate(data.explosionVfx, transform.position, Quaternion.identity);
+            }
+        }
         PlayDeathSound();
         Destroy(gameObject, 0.1f);
+    }
+
+    // Applies explosion damage with linear falloff based on distance from the center
+    private void DoExplosionDamage()
+    {
+        if (data == null) return;
+        Collider[] hits = Physics.OverlapSphere(transform.position, data.explosionRadius, data.shootMask, QueryTriggerInteraction.Ignore);
+        foreach (var h in hits)
+        {
+            var dmg = h.GetComponentInParent<IDamageable>();
+            if (dmg == null) continue;
+            // Distance to collider bounds center (approx). Use ClosestPoint for accuracy.
+            Vector3 p = h.ClosestPoint(transform.position);
+            float dist = Vector3.Distance(transform.position, p);
+            float t = Mathf.Clamp01(1f - (dist / Mathf.Max(0.0001f, data.explosionRadius))); // 1 at center -> 0 at edge
+            float amount = data.explosionDamage * damageMul * t;
+            if (amount > 0.01f)
+            {
+                dmg.TakeDamage(amount, p, (p - transform.position).normalized);
+            }
+        }
     }
 
     private void UpdateAnimSpeed()

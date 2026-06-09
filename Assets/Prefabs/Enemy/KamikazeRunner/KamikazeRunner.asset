@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5aa9c2eddab3b864280b77a4e314ad03, type: 3}
+  m_Name: KamikazeRunner
+  m_EditorClassIdentifier: 
+  enemyName: Kamikaze
+  archetype: 2
+  prefab: {fileID: 1844102938431247940, guid: f66905519a0e09b408934c7f0d217cd8, type: 3}
+  tintColor: {r: 1, g: 0.3, b: 0.2, a: 1}
+  baseHealth: 20
+  moveSpeed: 2
+  damage: 50
+  attackRange: 3
+  attackRate: 1
+  shootRange: 0
+  shootSpread: 0
+  shootMask:
+    serializedVersion: 2
+    m_Bits: 768
+  explosionRadius: 5
+  explosionDamage: 80
+  explosionVfx: {fileID: 100008, guid: 8f611da60097c85438a2947021f045cf, type: 3}
+  explosionVfxLifetime: 4
+  explosionSound: {fileID: 8300000, guid: 5c5024cd737c73d4988a1b76f7926f78, type: 3}
+  healthPerWave: 1.06
+  damagePerWave: 1.12
+  attackSound: {fileID: 0}
+  deathSound: {fileID: 0}

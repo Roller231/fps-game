@@ -33,6 +33,9 @@ public class EnemyData : ScriptableObject
     [Header("Kamikaze")]
     public float explosionRadius = 4f;
     public float explosionDamage = 100f;
+    [Tooltip("Префаб VFX взрыва (необязательно)")] public GameObject explosionVfx;
+    [Tooltip("Если VFX не удаляет себя сам: сколько секунд держать эффект")] public float explosionVfxLifetime = 2f;
+    [Tooltip("Звук взрыва (необязательно)")] public AudioClip explosionSound;
 
     [Header("Scaling")]
     [Tooltip("Health multiplier per wave step")] public float healthPerWave = 1.1f;

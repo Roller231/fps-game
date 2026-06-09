@@ -170,7 +170,11 @@ public class WaveSpawner : MonoBehaviour
             if (e.data.archetype == EnemyArchetype.Boss) continue; // боссов спавним только как lastOfWave
             totalWeight += Mathf.Max(0f, e.weight);
         }
-        if (totalWeight <= 0f) return null;
+        if (totalWeight <= 0f)
+        {
+            Debug.LogWarning($"WaveSpawner: no eligible enemies for wave {wave}. Check enemyPool/minWave/weights.");
+            return null;
+        }
 
         float roll = Random.value * totalWeight;
         for (int i = 0; i < enemyPool.Length; i++)
@@ -186,12 +190,22 @@ public class WaveSpawner : MonoBehaviour
 
     private void SpawnEnemy(EnemyData data, Vector3 pos)
     {
-        if (data == null || data.prefab == null) return;
+        if (data == null)
+        {
+            Debug.LogWarning("WaveSpawner: SpawnEnemy called with null data");
+            return;
+        }
+        if (data.prefab == null)
+        {
+            Debug.LogWarning($"WaveSpawner: EnemyData '{data.enemyName}' has no prefab assigned, skipping spawn");
+            return;
+        }
         var go = Instantiate(data.prefab, pos, Quaternion.identity);
         var ai = go.GetComponent<EnemyAI>();
         if (ai == null) ai = go.AddComponent<EnemyAI>();
         ai.ApplyData(data, currentWave);
         if (defendPoint != null) ai.SetTarget(defendPoint);
         alive.Add(ai);
+        Debug.Log($"WaveSpawner: Spawned '{data.enemyName}' at {pos} (alive={alive.Count})");
     }
 }

@@ -16,7 +16,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 30455f61daf85614984285044763a7e5, type: 3}
   viewModelPrefab: {fileID: 2792818088970967769, guid: 825fafe4628cc194d8ca681647ade90f, type: 3}
   damage: 25
-  headshotMultiplier: 2.5
+  headshotMultiplier: 1.5
   range: 150
   impactForce: 15
   fireMode: 0
