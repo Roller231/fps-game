@@ -29,6 +29,8 @@ public class EnemyData : ScriptableObject
     public float shootRange = 25f;
     public float shootSpread = 2.5f;
     public LayerMask shootMask = ~0;
+    [Tooltip("Если включено для босса, он будет использовать поведение стрелка (HandleShooter) вместо ближнего боя.")]
+    public bool bossShoots = false;
 
     [Header("Kamikaze")]
     public float explosionRadius = 4f;

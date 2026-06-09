@@ -99,6 +99,11 @@ public class WeaponInventory : MonoBehaviour
 
         currentSlot = PlayerPrefs.GetInt("CurrentSlot", 0);
         if (currentSlot >= maxSlots) currentSlot = 0;
+        // Если сохранённый слот пустой — выбрать первый непустой
+        if (currentSlot < 0 || currentSlot >= maxSlots || equippedWeapons[currentSlot] == null)
+        {
+            currentSlot = FindNextNonEmptySlot(-1); // начнём поиск с -1, чтобы взять первый доступный
+        }
     }
 
     private void SaveInventory()
@@ -150,10 +155,22 @@ public class WeaponInventory : MonoBehaviour
                 // Убрать из другого слота
                 equippedWeapons[i] = null;
                 Debug.Log($"WeaponInventory: Removed {weapon.weaponName} from slot {i}");
+                // Если активный слот опустел — позже переключимся на новый слот
             }
         }
 
         equippedWeapons[slotIndex] = weapon;
+        // Автопереключение на слот, куда экипировали, если текущий стал пуст или если хотим сразу активировать новое оружие
+        if (currentSlot != slotIndex && (equippedWeapons[currentSlot] == null))
+        {
+            SwitchToSlot(slotIndex);
+        }
+        else if (currentSlot != slotIndex)
+        {
+            // По UX: сразу сделать активным вновь экипированное оружие
+            SwitchToSlot(slotIndex);
+        }
+
         SaveInventory();
         OnInventoryChanged?.Invoke();
         return true;
@@ -165,12 +182,23 @@ public class WeaponInventory : MonoBehaviour
         equippedWeapons[slotIndex] = null;
         SaveInventory();
         OnInventoryChanged?.Invoke();
+
+        // Если сняли оружие с активного слота — перейти к ближайшему непустому
+        if (slotIndex == currentSlot)
+        {
+            int next = FindNextNonEmptySlot(currentSlot);
+            if (next != currentSlot)
+            {
+                SwitchToSlot(next);
+            }
+        }
     }
 
     public void SwitchToSlot(int slotIndex)
     {
         if (slotIndex < 0 || slotIndex >= maxSlots) return;
         if (slotIndex == currentSlot) return;
+        if (equippedWeapons[slotIndex] == null) return; // Нельзя переключаться на пустой слот
         
         currentSlot = slotIndex;
         PlayerPrefs.SetInt("CurrentSlot", currentSlot);
@@ -179,15 +207,14 @@ public class WeaponInventory : MonoBehaviour
 
     public void NextSlot()
     {
-        int next = (currentSlot + 1) % maxSlots;
-        SwitchToSlot(next);
+        int next = FindNextNonEmptySlot(currentSlot);
+        if (next != currentSlot) SwitchToSlot(next);
     }
 
     public void PreviousSlot()
     {
-        int prev = currentSlot - 1;
-        if (prev < 0) prev = maxSlots - 1;
-        SwitchToSlot(prev);
+        int prev = FindPrevNonEmptySlot(currentSlot);
+        if (prev != currentSlot) SwitchToSlot(prev);
     }
 
     public WeaponData[] GetAllWeapons()
@@ -217,5 +244,31 @@ public class WeaponInventory : MonoBehaviour
                 owned.Add(weapon);
         }
         return owned;
+    }
+
+    private int FindNextNonEmptySlot(int from)
+    {
+        if (maxSlots <= 0) return 0;
+        int start = (from + 1 + maxSlots) % maxSlots;
+        int i = start;
+        for (int count = 0; count < maxSlots; count++)
+        {
+            if (equippedWeapons[i] != null) return i;
+            i = (i + 1) % maxSlots;
+        }
+        // все пустые — вернуть текущий или 0
+        return currentSlot >= 0 && currentSlot < maxSlots ? currentSlot : 0;
+    }
+
+    private int FindPrevNonEmptySlot(int from)
+    {
+        if (maxSlots <= 0) return 0;
+        int i = (from - 1 + maxSlots) % maxSlots;
+        for (int count = 0; count < maxSlots; count++)
+        {
+            if (equippedWeapons[i] != null) return i;
+            i = (i - 1 + maxSlots) % maxSlots;
+        }
+        return currentSlot >= 0 && currentSlot < maxSlots ? currentSlot : 0;
     }
 }

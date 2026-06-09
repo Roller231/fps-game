@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5aa9c2eddab3b864280b77a4e314ad03, type: 3}
+  m_Name: ShieldBearer
+  m_EditorClassIdentifier: 
+  enemyName: Shield Bearer
+  archetype: 0
+  prefab: {fileID: 1844102938431247940, guid: cfee96bd1a7dfa4408f62bc2bd4ac4d9, type: 3}
+  tintColor: {r: 0.5, g: 0.5, b: 0.7, a: 1}
+  baseHealth: 250
+  moveSpeed: 2.5
+  damage: 20
+  attackRange: 2.5
+  attackRate: 0.5
+  shootRange: 0
+  shootSpread: 0
+  shootMask:
+    serializedVersion: 2
+    m_Bits: 256
+  explosionRadius: 0
+  explosionDamage: 0
+  explosionVfx: {fileID: 0}
+  explosionVfxLifetime: 2
+  explosionSound: {fileID: 0}
+  healthPerWave: 1.09
+  damagePerWave: 1.07
+  attackSound: {fileID: 0}
+  deathSound: {fileID: 0}

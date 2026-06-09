@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5aa9c2eddab3b864280b77a4e314ad03, type: 3}
+  m_Name: MeleeRusher
+  m_EditorClassIdentifier: 
+  enemyName: Rusher
+  archetype: 0
+  prefab: {fileID: 1844102938431247940, guid: e17a14a49701e5342933bfb4370ec576, type: 3}
+  tintColor: {r: 0.9, g: 0.7, b: 0.3, a: 1}
+  baseHealth: 120
+  moveSpeed: 5
+  damage: 10
+  attackRange: 2.5
+  attackRate: 0.5
+  shootRange: 0
+  shootSpread: 0
+  shootMask:
+    serializedVersion: 2
+    m_Bits: 768
+  explosionRadius: 0
+  explosionDamage: 0
+  explosionVfx: {fileID: 0}
+  explosionVfxLifetime: 2
+  explosionSound: {fileID: 0}
+  healthPerWave: 1.09
+  damagePerWave: 1.08
+  attackSound: {fileID: 0}
+  deathSound: {fileID: 0}

@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5aa9c2eddab3b864280b77a4e314ad03, type: 3}
+  m_Name: BossWarlock
+  m_EditorClassIdentifier: 
+  enemyName: Warlock Boss
+  archetype: 4
+  prefab: {fileID: 1844102938431247940, guid: 638c39bc756a3db41a32c4cb83f0cad8, type: 3}
+  tintColor: {r: 0.5, g: 0.1, b: 0.8, a: 1}
+  baseHealth: 400
+  moveSpeed: 3
+  damage: 40
+  attackRange: 3
+  attackRate: 0.35
+  shootRange: 40
+  shootSpread: 0.8
+  shootMask:
+    serializedVersion: 2
+    m_Bits: 256
+  bossShoots: 0
+  explosionRadius: 0
+  explosionDamage: 0
+  explosionVfx: {fileID: 0}
+  explosionVfxLifetime: 2
+  explosionSound: {fileID: 0}
+  healthPerWave: 1.14
+  damagePerWave: 1.12
+  attackSound: {fileID: 0}
+  deathSound: {fileID: 0}

@@ -45,6 +45,7 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private string animSpeedParam = "Speed";
     [SerializeField] private string animShootBool = "Shoot";
+    [SerializeField] private string animShootTrigger = "";
 
     private NavMeshAgent agent;
     private Health health;
@@ -218,6 +219,11 @@ public class EnemyAI : MonoBehaviour
         if (agent != null)
         {
             agent.speed = data.moveSpeed;
+            // Для милишников/тяжёлых/боссов — останавливаться на дистанции удара, а не упираться в цель
+            if (data.archetype == EnemyArchetype.Melee || data.archetype == EnemyArchetype.Heavy || data.archetype == EnemyArchetype.Boss)
+            {
+                agent.stoppingDistance = Mathf.Max(agent.stoppingDistance, Mathf.Max(0f, data.attackRange * 0.9f));
+            }
         }
         if (data.prefab != null)
         {
@@ -324,7 +330,8 @@ public class EnemyAI : MonoBehaviour
         UpdateAnimSpeed();
 
         float dist = Vector3.Distance(transform.position, target.position);
-        switch (data.archetype)
+        bool bossAsShooter = data.archetype == EnemyArchetype.Boss && data.bossShoots;
+        switch (bossAsShooter ? EnemyArchetype.Shooter : data.archetype)
         {
             case EnemyArchetype.Melee:
             case EnemyArchetype.Heavy:
@@ -347,11 +354,15 @@ public class EnemyAI : MonoBehaviour
     private void HandleMelee(float dist)
     {
         if (Time.time < nextAttackTime) return;
+        // Останавливаемся в радиусе атаки — не подбегаем вплотную
+        agent.isStopped = dist <= Mathf.Max(0.1f, data.attackRange);
         if (dist <= data.attackRange || HasArrived())
         {
             nextAttackTime = Time.time + 1f / Mathf.Max(0.01f, data.attackRate);
             PlayAttackSound();
             DealDamage(target, Damage);
+            // Используем триггер Shoot, если он настроен в Animator
+            SetShoot(true);
         }
     }
 
@@ -569,11 +580,29 @@ public class EnemyAI : MonoBehaviour
 
     private void SetShoot(bool value)
     {
-        if (animator == null || string.IsNullOrEmpty(animShootBool)) return;
-        if (shootState == value) return;
-        shootState = value;
-        animator.SetBool(animShootBool, shootState);
+        if (animator == null) return;
+
+        // Вариант 1: использовать триггер анимации выстрела/атаки
+        if (!string.IsNullOrEmpty(animShootTrigger))
+        {
+            if (value && !shootState)
+            {
+                animator.ResetTrigger(animShootTrigger);
+                animator.SetTrigger(animShootTrigger);
+            }
+            shootState = value;
+            return;
+        }
+
+        // Вариант 2: использовать bool-параметр (по умолчанию)
+        if (!string.IsNullOrEmpty(animShootBool))
+        {
+            if (shootState == value) return;
+            shootState = value;
+            animator.SetBool(animShootBool, shootState);
+        }
     }
+
 
     private bool IsDynamicTarget(Transform t)
     {

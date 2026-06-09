@@ -28,6 +28,15 @@ public class Health : MonoBehaviour, IDamageable
         currentHealth = Mathf.Max(0f, currentHealth - amount);
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
 
+        // Debug: Log enemy HP (works for bosses and обычных врагов)
+        var ai = GetComponent<EnemyAI>();
+        if (ai != null)
+        {
+            string name = ai.Data != null ? ai.Data.enemyName : gameObject.name;
+            string type = ai.Data != null ? ai.Data.archetype.ToString() : "Unknown";
+            Debug.Log($"[ENEMY HP] {name} [{type}]: {currentHealth}/{maxHealth} (-{amount})");
+        }
+
         if (currentHealth <= 0f)
         {
             isDead = true;
