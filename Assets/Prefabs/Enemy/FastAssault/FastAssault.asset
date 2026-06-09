@@ -26,6 +26,7 @@ MonoBehaviour:
   shootMask:
     serializedVersion: 2
     m_Bits: 768
+  bossShoots: 0
   explosionRadius: 0
   explosionDamage: 0
   explosionVfx: {fileID: 0}
@@ -33,5 +34,5 @@ MonoBehaviour:
   explosionSound: {fileID: 0}
   healthPerWave: 1.07
   damagePerWave: 1.06
-  attackSound: {fileID: 0}
+  attackSound: {fileID: 8300000, guid: 34da24e1d179a9f4cb4fb58bff4e5144, type: 3}
   deathSound: {fileID: 0}

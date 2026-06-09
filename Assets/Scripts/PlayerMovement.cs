@@ -26,6 +26,12 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float minLookAngle = -80f;
     [SerializeField] private float maxLookAngle = 80f;
 
+    [Header("Crouch")]
+    [SerializeField] private float crouchSpeedMultiplier = 0.5f;
+    [SerializeField] private float crouchHeight = 1.0f;
+    [SerializeField] private float crouchCameraOffsetY = -0.5f;
+    [SerializeField] private float crouchTransitionSpeed = 10f;
+
     private CharacterController characterController;
     private Vector3 velocity;
     private float cameraPitch;
@@ -33,6 +39,10 @@ public class PlayerMovement : MonoBehaviour
     private float lastTimeGrounded;
     private float lastTimeJumpPressed;
     private bool onLadder;
+    private bool isCrouching;
+    private float defaultHeight;
+    private Vector3 defaultCenter;
+    private Vector3 camDefaultLocalPos;
 
     private void Awake()
     {
@@ -40,6 +50,10 @@ public class PlayerMovement : MonoBehaviour
         if (weaponHolder == null) weaponHolder = GetComponentInChildren<WeaponHolder>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        defaultHeight = characterController.height;
+        defaultCenter = characterController.center;
+        if (playerCamera != null) camDefaultLocalPos = playerCamera.localPosition;
     }
 
     private void Update()
@@ -47,6 +61,7 @@ public class PlayerMovement : MonoBehaviour
         HandleLook();
         UpdateGrounded();
         UpdateLadder();
+        HandleCrouch();
         HandleMovement();
     }
 
@@ -84,12 +99,13 @@ public class PlayerMovement : MonoBehaviour
 
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
-        bool isSprinting = Input.GetKey(KeyCode.LeftShift);
+        bool isSprinting = Input.GetKey(KeyCode.LeftShift) && !isCrouching;
 
         Vector3 moveDirection = transform.right * horizontal + transform.forward * vertical;
         moveDirection = Vector3.ClampMagnitude(moveDirection, 1f);
 
         float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
+        if (isCrouching) currentSpeed *= crouchSpeedMultiplier;
         characterController.Move(moveDirection * currentSpeed * Time.deltaTime);
 
         if (!onLadder)
@@ -116,6 +132,44 @@ public class PlayerMovement : MonoBehaviour
         }
 
         characterController.Move(velocity * Time.deltaTime);
+    }
+
+    private void HandleCrouch()
+    {
+        bool wantCrouch = Input.GetKey(KeyCode.LeftControl);
+        if (wantCrouch)
+        {
+            isCrouching = true;
+        }
+        else
+        {
+            if (CanStandUp()) isCrouching = false;
+        }
+
+        float targetHeight = isCrouching ? Mathf.Max(0.8f, crouchHeight) : defaultHeight;
+        float newHeight = Mathf.Lerp(characterController.height, targetHeight, Time.deltaTime * crouchTransitionSpeed);
+        float delta = defaultHeight - newHeight;
+        Vector3 newCenter = defaultCenter + new Vector3(0f, -delta * 0.5f, 0f);
+        characterController.center = newCenter;
+        characterController.height = newHeight;
+
+        if (playerCamera != null)
+        {
+            Vector3 targetCam = camDefaultLocalPos + new Vector3(0f, isCrouching ? crouchCameraOffsetY : 0f, 0f);
+            playerCamera.localPosition = Vector3.Lerp(playerCamera.localPosition, targetCam, Time.deltaTime * crouchTransitionSpeed);
+        }
+    }
+
+    private bool CanStandUp()
+    {
+        float standHeight = defaultHeight;
+        float currentHeight = characterController.height;
+        if (standHeight <= currentHeight + 0.01f) return true;
+        float extra = (standHeight - currentHeight) + 0.05f;
+        Vector3 origin = transform.position + Vector3.up * (characterController.center.y + currentHeight * 0.5f);
+        float radius = characterController.radius * 0.95f;
+        bool blocked = Physics.SphereCast(origin, radius, Vector3.up, out _, extra, ~0, QueryTriggerInteraction.Ignore);
+        return !blocked;
     }
 
     private void UpdateGrounded()

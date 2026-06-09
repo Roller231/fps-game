@@ -65,8 +65,9 @@ public class WeaponHolder : MonoBehaviour
         var weapon = CurrentWeapon;
         if (weapon != null)
         {
-            if (Input.GetButtonDown("Fire1")) weapon.HandleTriggerPressed();
-            if (Input.GetButton("Fire1")) weapon.HandleTriggerHeld();
+            // Используем явные кнопки мыши, чтобы LeftControl (стандартный альтернативный Fire1) не стрелял
+            if (Input.GetMouseButtonDown(0)) weapon.HandleTriggerPressed();
+            if (Input.GetMouseButton(0)) weapon.HandleTriggerHeld();
             if (Input.GetKeyDown(KeyCode.R)) weapon.TryReload();
         }
 
