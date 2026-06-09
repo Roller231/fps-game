@@ -133,6 +133,20 @@ public class BaseManager : MonoBehaviour
         return best;
     }
 
+    /// <summary>Получить Health компоненты всех частей базы для UI.</summary>
+    public Health[] GetAllBaseParts()
+    {
+        List<Health> healthList = new List<Health>();
+        for (int i = 0; i < parts.Count; i++)
+        {
+            if (parts[i] != null && parts[i].Health != null)
+            {
+                healthList.Add(parts[i].Health);
+            }
+        }
+        return healthList.ToArray();
+    }
+
     private void Defeat()
     {
         defeated = true;

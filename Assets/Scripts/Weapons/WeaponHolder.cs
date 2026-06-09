@@ -6,7 +6,7 @@ public class WeaponHolder : MonoBehaviour
     [SerializeField] private Camera playerCamera;
     [SerializeField] private Camera viewModelCamera; // optional weapon-only camera provided by user
     [SerializeField] private Transform weaponSocket;
-    [SerializeField] private int maxWeapons = 3;
+    [SerializeField] private int maxWeapons = 2;
     [SerializeField] private float recoilRecoverySpeed = 6f;
     [SerializeField] private bool enableAds = true;
 
@@ -76,13 +76,18 @@ public class WeaponHolder : MonoBehaviour
             if (Input.GetMouseButtonUp(1)) isAiming = false;
         }
 
-        float scroll = Input.GetAxisRaw("Mouse ScrollWheel");
-        if (scroll > 0f) SwitchWeapon(currentIndex + 1);
-        else if (scroll < 0f) SwitchWeapon(currentIndex - 1);
-
-        for (int i = 0; i < 9 && i < weapons.Count; i++)
+        // Переключение оружия теперь управляется через WeaponInventory/WeaponSlotsUI
+        // Оставляем только для совместимости, если WeaponInventory не используется
+        if (WeaponInventory.Instance == null)
         {
-            if (Input.GetKeyDown((KeyCode)((int)KeyCode.Alpha1 + i))) SwitchWeapon(i);
+            float scroll = Input.GetAxisRaw("Mouse ScrollWheel");
+            if (scroll > 0f) SwitchWeapon(currentIndex + 1);
+            else if (scroll < 0f) SwitchWeapon(currentIndex - 1);
+
+            for (int i = 0; i < 9 && i < weapons.Count; i++)
+            {
+                if (Input.GetKeyDown((KeyCode)((int)KeyCode.Alpha1 + i))) SwitchWeapon(i);
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.G)) DropCurrent();

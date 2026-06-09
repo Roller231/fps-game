@@ -62,5 +62,8 @@ public class WeaponData : ScriptableObject
     public AudioClip reloadSound;
     public AudioClip hitmarkerSound;
 
+    [Header("Shop")]
+    [Tooltip("Цена оружия в магазине (0 = бесплатное)")] public int price = 0;
+
     public float SecondsBetweenShots => fireRate > 0f ? 60f / fireRate : 0f;
 }

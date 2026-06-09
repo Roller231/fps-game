@@ -57,4 +57,23 @@ public class GameManager : MonoBehaviour
     {
         return baseManager != null ? baseManager.GetClosestAlive(fromPosition) : null;
     }
+
+    public bool SpendMoney(int amount)
+    {
+        if (currentMoney >= amount)
+        {
+            currentMoney -= amount;
+            PlayerPrefs.SetInt("PlayerMoney", currentMoney);
+            PlayerPrefs.Save();
+            return true;
+        }
+        return false;
+    }
+
+    public void AddMoney(int amount)
+    {
+        currentMoney += amount;
+        PlayerPrefs.SetInt("PlayerMoney", currentMoney);
+        PlayerPrefs.Save();
+    }
 }
