@@ -34,5 +34,6 @@ MonoBehaviour:
   explosionSound: {fileID: 0}
   healthPerWave: 1.09
   damagePerWave: 1.08
+  moneyReward: 12
   attackSound: {fileID: 8300000, guid: cc9de2ff24e9d654ba6be49d7decb2f7, type: 3}
   deathSound: {fileID: 0}

@@ -43,6 +43,9 @@ public class EnemyData : ScriptableObject
     [Tooltip("Health multiplier per wave step")] public float healthPerWave = 1.1f;
     [Tooltip("Damage multiplier per wave step")] public float damagePerWave = 1.05f;
 
+    [Header("Rewards")]
+    [Tooltip("Деньги за убийство этого врага")] public int moneyReward = 10;
+
     [Header("Audio")]
     public AudioClip attackSound;
     public AudioClip deathSound;

@@ -23,6 +23,10 @@ public class SimpleFreeLook : MonoBehaviour
 
     private void Update()
     {
+        // Блокируем управление в паузе
+        if (PauseMenu.IsPaused)
+            return;
+
         float mx = Input.GetAxis("Mouse X") * lookSensitivity;
         float my = Input.GetAxis("Mouse Y") * lookSensitivity;
 

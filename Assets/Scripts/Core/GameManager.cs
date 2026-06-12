@@ -27,6 +27,12 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+        // Сброс timeScale при старте (на случай если остался 0 после выхода в меню)
+        Time.timeScale = 1f;
+        
+        // Сброс статического флага паузы
+        PauseMenu.IsPaused = false;
+
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);

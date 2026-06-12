@@ -532,6 +532,18 @@ public class EnemyAI : MonoBehaviour
     {
         if (isDead) return;
         isDead = true;
+        
+        // Выдаём награду за убийство
+        if (data != null && data.moneyReward > 0 && MoneyManager.Instance != null)
+        {
+            Debug.Log($"[EnemyAI] Killed {data.enemyName}, reward: {data.moneyReward}, calling AddMoney");
+            MoneyManager.Instance.AddMoney(data.moneyReward, transform.position);
+        }
+        else
+        {
+            Debug.LogWarning($"[EnemyAI] No money reward: data={data != null}, reward={data?.moneyReward}, MoneyManager={MoneyManager.Instance != null}");
+        }
+        
         // Камикадзе взрывается при смерти, если не успел взорваться до этого
         if (data != null && data.archetype == EnemyArchetype.Kamikaze && !exploded)
         {

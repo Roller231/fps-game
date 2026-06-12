@@ -45,3 +45,5 @@ MonoBehaviour:
   tracerLifetime: 0.23
   fireSound: {fileID: 0}
   reloadSound: {fileID: 0}
+  hitmarkerSound: {fileID: 0}
+  price: 45000

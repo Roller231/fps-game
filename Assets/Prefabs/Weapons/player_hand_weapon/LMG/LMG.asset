@@ -46,4 +46,4 @@ MonoBehaviour:
   fireSound: {fileID: 8300000, guid: 1d63c3d4ac4ee084b9bbab76e08710be, type: 3}
   reloadSound: {fileID: 8300000, guid: 5f2aa57c1c47a35449398dd6f95097c8, type: 3}
   hitmarkerSound: {fileID: 8300000, guid: 428a1bfd64c9a7a45bdf3ac0dd055e59, type: 3}
-  price: 1200
+  price: 60000

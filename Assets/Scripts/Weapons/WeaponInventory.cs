@@ -132,7 +132,7 @@ public class WeaponInventory : MonoBehaviour
     {
         if (weapon == null || IsOwned(weapon)) return false;
         
-        if (GameManager.Instance.SpendMoney(price))
+        if (MoneyManager.Instance != null && MoneyManager.Instance.SpendMoney(price))
         {
             ownedWeapons.Add(weapon.weaponName);
             SaveInventory();

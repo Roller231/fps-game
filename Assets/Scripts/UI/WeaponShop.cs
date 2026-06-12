@@ -16,6 +16,8 @@ public class WeaponShop : MonoBehaviour
     private List<WeaponShopItem> shopItems = new List<WeaponShopItem>();
     private bool isOpen = false;
 
+    public bool IsOpen => isOpen;
+
     private void Start()
     {
         if (shopPanel != null) shopPanel.SetActive(false);
@@ -36,13 +38,10 @@ public class WeaponShop : MonoBehaviour
 
     private void Update()
     {
+        // Открытие по E (закрытие теперь через PauseMenu на Escape)
         if (Input.GetKeyDown(KeyCode.E) && !isOpen)
         {
             OpenShop();
-        }
-        else if (Input.GetKeyDown(KeyCode.Escape) && isOpen)
-        {
-            CloseShop();
         }
     }
 
@@ -105,9 +104,9 @@ public class WeaponShop : MonoBehaviour
         if (!isOpen) return;
 
         // Обновить деньги
-        if (moneyText != null && GameManager.Instance != null)
+        if (moneyText != null && MoneyManager.Instance != null)
         {
-            moneyText.text = $"${GameManager.Instance.Money}";
+            moneyText.text = $"${MoneyManager.Instance.CurrentMoney}";
         }
 
         // Очистить список

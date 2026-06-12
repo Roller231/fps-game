@@ -25,6 +25,10 @@ public class PlayerUIController : MonoBehaviour
     [SerializeField] private Text weaponNameText;
     [SerializeField] private Text ammoText;
 
+    [Header("Wave UI")]
+    [SerializeField] private Text waveText;
+    [SerializeField] private string wavePrefix = "Wave: ";
+
     private Weapon subscribedWeapon;
     
     // Для плавной анимации красного фона
@@ -66,6 +70,7 @@ public class PlayerUIController : MonoBehaviour
         UpdateBaseHealthAggregate();
         UpdatePlayerHealth(playerHealth != null ? playerHealth.Current : 0f, playerHealth != null ? playerHealth.Max : 1f);
         UpdateAmmo();
+        UpdateWave();
         
         // Инициализировать целевые значения
         baseHealthTarget = baseHealthFill != null ? baseHealthFill.fillAmount : 1f;
@@ -91,6 +96,9 @@ public class PlayerUIController : MonoBehaviour
             playerHealthTarget = Mathf.Lerp(playerHealthTarget, playerHealthFill.fillAmount, Time.deltaTime * healthBarSmoothSpeed);
             playerHealthBackground.fillAmount = playerHealthTarget;
         }
+        
+        // Обновляем отображение волны
+        UpdateWave();
     }
 
     private void OnDisable()
@@ -195,5 +203,20 @@ public class PlayerUIController : MonoBehaviour
 
         if (weaponNameText != null) weaponNameText.text = weapon.Data.weaponName;
         if (ammoText != null) ammoText.text = $"{weapon.CurrentAmmo} / {weapon.ReserveAmmo}";
+    }
+
+    private void UpdateWave()
+    {
+        if (waveText == null) return;
+        
+        var spawner = FindObjectOfType<WaveSpawner>();
+        if (spawner != null)
+        {
+            waveText.text = wavePrefix + spawner.CurrentWave;
+        }
+        else
+        {
+            waveText.text = wavePrefix + "0";
+        }
     }
 }

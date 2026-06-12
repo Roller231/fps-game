@@ -62,6 +62,10 @@ public class WeaponHolder : MonoBehaviour
 
     private void HandleInput()
     {
+        // Блокируем стрельбу и переключение в паузе
+        if (PauseMenu.IsPaused)
+            return;
+
         var weapon = CurrentWeapon;
         if (weapon != null)
         {
