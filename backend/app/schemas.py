@@ -45,6 +45,7 @@ class ProfileResponse(BaseModel):
     avatar_url: Optional[str]
     balance: int
     equipped_weapon: Optional[str]
+    equipped_slots: List[Optional[str]] = Field(default_factory=list)
     weapons: List[WeaponData]
     stats: StatsData
 
@@ -54,6 +55,7 @@ class UpdateProfileRequest(BaseModel):
     avatar_url: Optional[str] = None
     balance: Optional[int] = None
     equipped_weapon: Optional[str] = None
+    equipped_slots: Optional[List[Optional[str]]] = None
     weapons: Optional[List[WeaponData]] = None
     stats: Optional[StatsData] = None
 
@@ -61,3 +63,9 @@ class UpdateProfileRequest(BaseModel):
 class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str = Field(..., min_length=6, max_length=128)
+
+
+class DonateGrantRequest(BaseModel):
+    token: str
+    package_id: str
+    amount: int

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Синхронизирует профиль игрока с бэкендом: баланс, оружие, статистику
@@ -13,6 +14,7 @@ public class ProfileService : MonoBehaviour
 {
     [Header("Backend")]
     [SerializeField] private string backendBaseUrl = "http://localhost:8000";
+    [SerializeField] private bool autoDetectBackendUrl = true;
 
     [Header("Auto-save")]
     [SerializeField] private float autoSaveInterval = 30f;
@@ -21,6 +23,7 @@ public class ProfileService : MonoBehaviour
     [SerializeField] private Image profileAvatarImage;
     [SerializeField] private Text profileDisplayNameText;
     [SerializeField] private Text shopBalanceText;
+    [SerializeField] private GameObject unauthorizedPanel;
 
     public static ProfileService Instance { get; private set; }
 
@@ -34,6 +37,9 @@ public class ProfileService : MonoBehaviour
     private Sprite avatarSpriteCache;
     private Texture2D avatarTextureCache;
     private string lastAvatarUrl;
+    private bool avatarSpriteOwned;
+    private bool saveInProgress;
+    private bool savePending;
 
     public event Action<ProfileData> OnProfileLoaded;
     public event Action OnProfileSaved;
@@ -47,6 +53,22 @@ public class ProfileService : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+
+        // Auto-detect backend URL from page URL (WebGL only)
+        if (autoDetectBackendUrl)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            string pageUrl = Application.absoluteURL;
+            if (!string.IsNullOrEmpty(pageUrl))
+            {
+                System.Uri uri = new System.Uri(pageUrl);
+                // Assume backend runs on same host, port 8000
+                backendBaseUrl = $"{uri.Scheme}://{uri.Host}:8000";
+                Debug.Log($"[ProfileService] Auto-detected backend URL: {backendBaseUrl}");
+            }
+#endif
+        }
     }
 
     private void Start()
@@ -55,9 +77,14 @@ public class ProfileService : MonoBehaviour
         if (authManager != null)
         {
             authManager.OnTokenValidated += HandleTokenValidated;
+            authManager.OnTokenMissing += HandleTokenMissing;
         }
 
-        if (!string.IsNullOrEmpty(AuthManager.CurrentToken))
+        if (AuthManager.IsTokenMissing)
+        {
+            SetUnauthorizedPanel(true);
+        }
+        else if (!string.IsNullOrEmpty(AuthManager.CurrentToken))
         {
             Debug.Log("[ProfileService] Using existing token from AuthManager");
             Initialize(AuthManager.CurrentToken);
@@ -65,6 +92,7 @@ public class ProfileService : MonoBehaviour
         else
         {
             Debug.Log("[ProfileService] Waiting for AuthManager to validate token...");
+            SetUnauthorizedPanel(false);
         }
     }
 
@@ -87,7 +115,7 @@ public class ProfileService : MonoBehaviour
 
         if (shopBalanceText != null)
         {
-            shopBalanceText.text = $"Balance: {amount}";
+            shopBalanceText.text = $"Balance: ${amount}";
         }
     }
 
@@ -106,7 +134,7 @@ public class ProfileService : MonoBehaviour
 
         if (shopBalanceText != null)
         {
-            shopBalanceText.text = $"Balance: {cachedProfile.balance}";
+            shopBalanceText.text = $"Balance: ${cachedProfile.balance}";
         }
 
         UpdateAvatarImage(cachedProfile.avatar_url);
@@ -126,7 +154,6 @@ public class ProfileService : MonoBehaviour
         if (string.IsNullOrWhiteSpace(url))
         {
             lastAvatarUrl = null;
-            ClearAvatarImage();
             return;
         }
 
@@ -139,7 +166,17 @@ public class ProfileService : MonoBehaviour
     private IEnumerator DownloadAvatarCoroutine(string url)
     {
         lastAvatarUrl = url;
-        using (var request = UnityWebRequestTexture.GetTexture(url))
+        
+        // Convert relative URLs to absolute
+        string fullUrl = url;
+        if (url.StartsWith("/"))
+        {
+            fullUrl = backendBaseUrl + url;
+        }
+        
+        Debug.Log($"[ProfileService] Loading avatar from: {fullUrl}");
+        
+        using (var request = UnityWebRequestTexture.GetTexture(fullUrl))
         {
             request.timeout = 10;
             yield return request.SendWebRequest();
@@ -151,7 +188,6 @@ public class ProfileService : MonoBehaviour
 #endif
             {
                 Debug.LogWarning($"[ProfileService] Failed to load avatar: {request.error}");
-                ClearAvatarImage();
                 avatarLoadRoutine = null;
                 yield break;
             }
@@ -159,7 +195,6 @@ public class ProfileService : MonoBehaviour
             var texture = DownloadHandlerTexture.GetContent(request);
             if (texture == null)
             {
-                ClearAvatarImage();
                 avatarLoadRoutine = null;
                 yield break;
             }
@@ -175,6 +210,7 @@ public class ProfileService : MonoBehaviour
 
             avatarTextureCache = texture;
             avatarSpriteCache = Sprite.Create(avatarTextureCache, new Rect(0, 0, avatarTextureCache.width, avatarTextureCache.height), new Vector2(0.5f, 0.5f));
+            avatarSpriteOwned = true;
             profileAvatarImage.sprite = avatarSpriteCache;
             profileAvatarImage.enabled = true;
         }
@@ -184,12 +220,6 @@ public class ProfileService : MonoBehaviour
 
     private void ClearAvatarImage()
     {
-        if (profileAvatarImage != null)
-        {
-            profileAvatarImage.sprite = null;
-            profileAvatarImage.enabled = false;
-        }
-
         if (avatarSpriteCache != null)
         {
             Destroy(avatarSpriteCache);
@@ -201,6 +231,15 @@ public class ProfileService : MonoBehaviour
             Destroy(avatarTextureCache);
             avatarTextureCache = null;
         }
+
+        if (avatarSpriteOwned && profileAvatarImage != null)
+        {
+            if (profileAvatarImage.sprite == null || profileAvatarImage.sprite == avatarSpriteCache)
+            {
+                profileAvatarImage.sprite = null;
+            }
+            avatarSpriteOwned = false;
+        }
     }
 
     private void OnDestroy()
@@ -208,7 +247,10 @@ public class ProfileService : MonoBehaviour
         if (authManager != null)
         {
             authManager.OnTokenValidated -= HandleTokenValidated;
+            authManager.OnTokenMissing -= HandleTokenMissing;
         }
+
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
 
         if (MoneyManager.Instance != null)
         {
@@ -226,7 +268,51 @@ public class ProfileService : MonoBehaviour
     private void HandleTokenValidated(string token)
     {
         Debug.Log("[ProfileService] Received token from AuthManager, initializing profile sync");
+        SetUnauthorizedPanel(false);
         Initialize(token);
+    }
+
+    private void HandleTokenMissing()
+    {
+        Debug.Log("[ProfileService] Token missing, enabling unauthorized panel");
+        SetUnauthorizedPanel(true);
+    }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (cachedProfile == null)
+            return;
+
+        Debug.Log($"[ProfileService] Scene '{scene.name}' loaded, resetting profile application");
+        profileApplied = false;
+        waitingForManagers = false;
+        TryApplyProfile();
+    }
+
+    public void SetUiBindings(Image avatarImage, Text displayNameText, Text balanceText, GameObject unauthorizedPanelObject)
+    {
+        profileAvatarImage = avatarImage;
+        profileDisplayNameText = displayNameText;
+        shopBalanceText = balanceText;
+        unauthorizedPanel = unauthorizedPanelObject;
+
+        if (cachedProfile != null)
+        {
+            UpdateUiBindings();
+        }
+        else if (shopBalanceText != null && MoneyManager.Instance != null)
+        {
+            shopBalanceText.text = $"Balance: ${MoneyManager.Instance.CurrentMoney}";
+        }
+
+        if (AuthManager.IsTokenMissing)
+        {
+            SetUnauthorizedPanel(true);
+        }
+        else if (!string.IsNullOrEmpty(AuthManager.CurrentToken))
+        {
+            SetUnauthorizedPanel(false);
+        }
     }
 
     private void Update()
@@ -290,6 +376,9 @@ public class ProfileService : MonoBehaviour
                 }
             }
 
+            // Даже если игровые менеджеры ещё не готовы, обновим UI главного меню
+            UpdateUiBindings();
+
             TryApplyProfile();
             OnProfileLoaded?.Invoke(cachedProfile);
             
@@ -343,6 +432,14 @@ public class ProfileService : MonoBehaviour
         UpdateUiBindings();
     }
 
+    private void SetUnauthorizedPanel(bool active)
+    {
+        if (unauthorizedPanel != null)
+        {
+            unauthorizedPanel.SetActive(active);
+        }
+    }
+
     public void SaveProfile()
     {
         if (cachedProfile == null || string.IsNullOrEmpty(currentToken))
@@ -350,6 +447,16 @@ public class ProfileService : MonoBehaviour
             Debug.LogWarning("[ProfileService] Cannot save: no profile loaded");
             return;
         }
+
+        if (saveInProgress)
+        {
+            savePending = true;
+            Debug.Log("[ProfileService] Save already running, scheduling another right after it finishes");
+            return;
+        }
+
+        savePending = false;
+        saveInProgress = true;
 
         CollectGameData();
         StartCoroutine(SaveProfileCoroutine());
@@ -412,12 +519,20 @@ public class ProfileService : MonoBehaviour
             if (hasError)
             {
                 Debug.LogError($"[ProfileService] Failed to save profile: {request.error}");
-                yield break;
             }
 
             lastSaveTime = Time.time;
             OnProfileSaved?.Invoke();
             Debug.Log("[ProfileService] Profile saved successfully");
+        }
+
+        saveInProgress = false;
+
+        if (savePending)
+        {
+            savePending = false;
+            Debug.Log("[ProfileService] Running queued save");
+            SaveProfile();
         }
     }
 
@@ -440,6 +555,7 @@ public class ProfileData
     public string avatar_url;
     public int balance;
     public string equipped_weapon;
+    public string[] equipped_slots;
     public WeaponDataItem[] weapons;
     public StatsData stats;
 }

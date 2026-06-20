@@ -20,6 +20,7 @@ class User(Base):
     # Game data
     balance = Column(Integer, default=0, nullable=False)
     equipped_weapon = Column(String(64), nullable=True)
+    equipped_slots = Column(String(512), nullable=True)
     
     created_at = Column(DateTime, default=datetime.utcnow)
     last_login = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

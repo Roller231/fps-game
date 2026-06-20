@@ -4,6 +4,173 @@
     <meta charset="UTF-8">
     <title>FPS Command Center</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .tab-switch {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            background: rgba(255,255,255,0.05);
+            padding: 6px;
+            border-radius: 12px;
+        }
+        .tab-button {
+            flex: 1;
+            padding: 10px 0;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .tab-button.active {
+            background: linear-gradient(135deg, #ff7a18, #af002d 85%);
+        }
+        .register-only {
+            display: none;
+        }
+        .play-card button {
+            width: 100%;
+            padding: 14px 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .play-card button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .token-chip {
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.08);
+            font-family: "Roboto Mono", Consolas, monospace;
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+        .auth-hint {
+            margin-top: 12px;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.7);
+        }
+        .logout-section {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .logout-section p {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.9);
+        }
+        .logout-button {
+            background: rgba(255,59,48,0.8);
+            border: 1px solid rgba(255,59,48,1);
+        }
+        .logout-button:hover {
+            background: rgba(255,59,48,1);
+        }
+
+        /* ── Donate Section ── */
+        .donate-section {
+            max-width: 1000px;
+            margin: 40px auto 60px;
+            padding: 0 20px;
+        }
+        .donate-section h2 {
+            text-align: center;
+            font-size: 1.6rem;
+            color: #fff;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        .donate-section .donate-sub {
+            text-align: center;
+            color: rgba(255,255,255,0.55);
+            font-size: 0.9rem;
+            margin-bottom: 28px;
+        }
+        .donate-grid {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .donate-card {
+            position: relative;
+            background: linear-gradient(160deg, #0d1f12 60%, #0a2a10);
+            border: 2px solid #2e7d32;
+            border-radius: 16px;
+            box-shadow: 0 0 18px rgba(46,125,50,0.35), inset 0 0 30px rgba(0,0,0,0.5);
+            width: 220px;
+            padding: 30px 20px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .donate-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 0 30px rgba(76,175,80,0.5), inset 0 0 30px rgba(0,0,0,0.5);
+        }
+        .donate-card .donate-corner {
+            position: absolute;
+            width: 14px; height: 14px;
+            border-color: #4caf50;
+            border-style: solid;
+            border-width: 0;
+        }
+        .donate-card .donate-corner.tl { top: 6px; left: 6px; border-top-width: 3px; border-left-width: 3px; border-radius: 4px 0 0 0; }
+        .donate-card .donate-corner.tr { top: 6px; right: 6px; border-top-width: 3px; border-right-width: 3px; border-radius: 0 4px 0 0; }
+        .donate-card .donate-corner.bl { bottom: 6px; left: 6px; border-bottom-width: 3px; border-left-width: 3px; border-radius: 0 0 0 4px; }
+        .donate-card .donate-corner.br { bottom: 6px; right: 6px; border-bottom-width: 3px; border-right-width: 3px; border-radius: 0 0 4px 0; }
+        .donate-icon {
+            font-size: 5rem;
+            line-height: 1;
+            color: #2e7d32;
+            text-shadow: 0 0 20px rgba(76,175,80,0.6);
+            font-weight: 900;
+        }
+        .donate-amount {
+            color: #4caf50;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .donate-badge {
+            position: absolute;
+            top: -10px;
+            background: linear-gradient(90deg, #ff7a18, #af002d);
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .donate-btn {
+            width: 100%;
+            padding: 11px 0;
+            background: linear-gradient(90deg, #388e3c, #2e7d32);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            transition: background 0.2s ease, opacity 0.2s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+        }
+        .donate-btn:hover {
+            background: linear-gradient(90deg, #43a047, #388e3c);
+        }
+        .donate-btn:active {
+            opacity: 0.85;
+        }
+    </style>
 </head>
 <body>
     <section class="hero">
@@ -14,42 +181,44 @@
     </section>
 
     <main class="cards">
-        <div class="card">
-            <h2>Create Account</h2>
-            <form id="register-form">
-                <label>Username
-                    <input type="text" name="username" required>
-                </label>
-                <label>Display Name (optional)
-                    <input type="text" name="display_name" placeholder="Leave empty to use username">
-                </label>
-                <label>Password
-                    <input type="password" name="password" required>
-                </label>
-                <label>Repeat password
-                    <input type="password" name="confirm_password" required>
-                </label>
-                <button type="submit">Register</button>
-            </form>
+        <div class="card auth-card" id="auth-card">
+            <div id="auth-form-section">
+                <div class="tab-switch">
+                    <button type="button" class="tab-button active" data-auth-mode="login">Log In</button>
+                    <button type="button" class="tab-button" data-auth-mode="register">Register</button>
+                </div>
+                <form id="auth-form">
+                    <label>Username
+                        <input type="text" name="username" required>
+                    </label>
+                    <div class="register-only">
+                        <label>Display Name (optional)
+                            <input type="text" name="display_name" placeholder="Leave empty to use username">
+                        </label>
+                    </div>
+                    <label>Password
+                        <input type="password" name="password" required>
+                    </label>
+                    <div class="register-only">
+                        <label>Repeat password
+                            <input type="password" name="confirm_password">
+                        </label>
+                    </div>
+                    <button type="submit" id="auth-submit">Log In</button>
+                </form>
+                <p class="auth-hint" id="auth-hint">Use your credentials to grab a fresh token.</p>
+            </div>
+            <div id="logout-section" class="logout-section" style="display:none;">
+                <p>Logged in as <strong id="logged-username"></strong></p>
+                <button type="button" id="logout-button" class="logout-button">Log Out</button>
+            </div>
         </div>
 
-        <div class="card">
-            <h2>Log In</h2>
-            <form id="login-form">
-                <label>Username
-                    <input type="text" name="username" required>
-                </label>
-                <label>Password
-                    <input type="password" name="password" required>
-                </label>
-                <button type="submit">Sign in</button>
-            </form>
-        </div>
-
-        <div class="card token-card">
-            <h2>Your Entry Token</h2>
-            <p class="token-value" id="token-display">No token yet.</p>
-            <p class="token-hint">Copy this token and append it to the game link:<br><code>?token=YOUR_TOKEN</code></p>
+        <div class="card play-card">
+            <h2>Launch the Game</h2>
+            <p id="play-status">Sign in to unlock your personal launch link.</p>
+            <button id="play-button" type="button" disabled>PLAY</button>
+            <p class="token-chip" id="token-chip">Token not issued yet.</p>
         </div>
 
         <div class="card profile-card" id="profile-card" style="display:none;">
@@ -58,8 +227,11 @@
                 <label>Display Name
                     <input type="text" name="display_name" id="profile-display-name" required>
                 </label>
-                <label>Avatar URL (optional)
-                    <input type="text" name="avatar_url" id="profile-avatar" placeholder="https://...">
+                <label>Avatar Image
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img id="avatar-preview" src="" alt="Avatar" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; display: none; border: 2px solid rgba(255,255,255,0.2);">
+                        <input type="file" id="avatar-file" accept="image/*" style="flex: 1;">
+                    </div>
                 </label>
                 <button type="submit">Save Profile</button>
             </form>
@@ -77,11 +249,37 @@
         </div>
     </main>
 
+    <!-- ── Donate Section ── -->
+    <div class="donate-section">
+        <h2>⚡ Support the Game</h2>
+        <p class="donate-sub">Purchase in-game currency to gear up and dominate the battlefield.</p>
+        <div class="donate-grid" id="donate-grid">
+            <!-- Cards are injected by JS from DONATE_PACKAGES -->
+        </div>
+    </div>
+
     <div id="toast" class="toast"></div>
 
     <script>
         const toast = document.getElementById('toast');
-        const tokenDisplay = document.getElementById('token-display');
+        const profileCard = document.getElementById('profile-card');
+        const playButton = document.getElementById('play-button');
+        const playStatus = document.getElementById('play-status');
+        const tokenChip = document.getElementById('token-chip');
+        const authForm = document.getElementById('auth-form');
+        const authSubmit = document.getElementById('auth-submit');
+        const authHint = document.getElementById('auth-hint');
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const registerFields = document.querySelectorAll('.register-only');
+        const authFormSection = document.getElementById('auth-form-section');
+        const logoutSection = document.getElementById('logout-section');
+        const loggedUsername = document.getElementById('logged-username');
+        const logoutButton = document.getElementById('logout-button');
+        const GAME_URL = "http://{{ server_host }}:{{ webgl_port }}/?token=";
+
+        let currentMode = 'login';
+        let currentToken = localStorage.getItem('fps_token') || null;
+        let currentUsername = localStorage.getItem('fps_username') || null;
 
         function showToast(message, isError = false) {
             toast.textContent = message;
@@ -90,56 +288,136 @@
             setTimeout(() => toast.style.opacity = 0, 3000);
         }
 
-        async function handleForm(formId, endpoint) {
-            const form = document.getElementById(formId);
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const formData = new FormData(form);
-                const payload = Object.fromEntries(formData.entries());
-
-                try {
-                    const response = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        const error = await response.json();
-                        throw new Error(error.detail || 'Request failed');
-                    }
-
-                    const data = await response.json();
-                    tokenDisplay.textContent = data.token;
-                    showToast('Token updated');
-                } catch (err) {
-                    showToast(err.message, true);
-                }
-            });
+        function updateAuthUI() {
+            if (currentToken && currentUsername) {
+                // Logged in - show logout section, hide auth form
+                authFormSection.style.display = 'none';
+                logoutSection.style.display = 'block';
+                loggedUsername.textContent = currentUsername;
+            } else {
+                // Not logged in - show auth form, hide logout section
+                authFormSection.style.display = 'block';
+                logoutSection.style.display = 'none';
+            }
         }
 
-        handleForm('register-form', '/api/register');
-        handleForm('login-form', '/api/login');
+        function updatePlayState() {
+            if (currentToken) {
+                playButton.disabled = false;
+                playStatus.textContent = currentUsername ? `Welcome, ${currentUsername}! Ready to deploy.` : 'Token ready. Launch the game!';
+                tokenChip.textContent = currentToken;
+                tokenChip.classList.add('active');
+            } else {
+                playButton.disabled = true;
+                playStatus.textContent = 'Sign in to unlock your personal launch link.';
+                tokenChip.textContent = 'Token not issued yet.';
+                tokenChip.classList.remove('active');
+            }
+        }
 
-        let currentToken = null;
+        function logout() {
+            currentToken = null;
+            currentUsername = null;
+            localStorage.removeItem('fps_token');
+            localStorage.removeItem('fps_username');
+            
+            updateAuthUI();
+            updatePlayState();
+            profileCard.style.display = 'none';
+            
+            showToast('Logged out successfully');
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            tabButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.authMode === mode));
+            registerFields.forEach(el => {
+                el.style.display = mode === 'register' ? 'block' : 'none';
+                const inputs = el.querySelectorAll('input');
+                inputs.forEach(input => input.required = mode === 'register');
+            });
+            authSubmit.textContent = mode === 'register' ? 'Register' : 'Log In';
+            authHint.textContent = mode === 'register' ? 'Create an operator profile and receive your token.' : 'Use your credentials to grab a fresh token.';
+        }
+
+        tabButtons.forEach(btn => btn.addEventListener('click', () => switchMode(btn.dataset.authMode)));
+
+        async function authenticate(payload, endpoint) {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({}));
+                throw new Error(error.detail || 'Request failed');
+            }
+
+            return response.json();
+        }
 
         async function loadProfile(token) {
             try {
                 const response = await fetch(`/api/profile?token=${encodeURIComponent(token)}`);
                 if (!response.ok) throw new Error('Failed to load profile');
-                
+
                 const profile = await response.json();
-                currentToken = token;
-                
                 document.getElementById('profile-display-name').value = profile.display_name;
-                document.getElementById('profile-avatar').value = profile.avatar_url || '';
-                document.getElementById('profile-card').style.display = 'block';
                 
+                const avatarPreview = document.getElementById('avatar-preview');
+                if (profile.avatar_url) {
+                    avatarPreview.src = profile.avatar_url;
+                    avatarPreview.style.display = 'block';
+                } else {
+                    avatarPreview.style.display = 'none';
+                }
+                
+                profileCard.style.display = 'block';
+
                 showToast('Profile loaded');
             } catch (err) {
                 showToast(err.message, true);
             }
         }
+
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(authForm);
+            const payload = Object.fromEntries(formData.entries());
+
+            try {
+                const endpoint = currentMode === 'register' ? '/api/register' : '/api/login';
+                const data = await authenticate(payload, endpoint);
+                currentToken = data.token;
+                currentUsername = data.username;
+
+                localStorage.setItem('fps_token', currentToken);
+                localStorage.setItem('fps_username', currentUsername);
+
+                updateAuthUI();
+                updatePlayState();
+                showToast('Access granted');
+                await loadProfile(currentToken);
+            } catch (err) {
+                showToast(err.message, true);
+            }
+        });
+
+        logoutButton.addEventListener('click', logout);
+
+        document.getElementById('avatar-file').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const preview = document.getElementById('avatar-preview');
+                    preview.src = ev.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
 
         document.getElementById('profile-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -148,22 +426,39 @@
                 return;
             }
 
-            const formData = new FormData(e.target);
-            const payload = Object.fromEntries(formData.entries());
-
             try {
+                // Upload avatar if file selected
+                const avatarFile = document.getElementById('avatar-file').files[0];
+                if (avatarFile) {
+                    const avatarFormData = new FormData();
+                    avatarFormData.append('file', avatarFile);
+                    
+                    const avatarResponse = await fetch(`/api/profile/avatar?token=${encodeURIComponent(currentToken)}`, {
+                        method: 'POST',
+                        body: avatarFormData
+                    });
+
+                    if (!avatarResponse.ok) {
+                        const error = await avatarResponse.json().catch(() => ({}));
+                        throw new Error(error.detail || 'Avatar upload failed');
+                    }
+                }
+
+                // Update display name
+                const displayName = document.getElementById('profile-display-name').value;
                 const response = await fetch(`/api/profile?token=${encodeURIComponent(currentToken)}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ display_name: displayName })
                 });
 
                 if (!response.ok) {
-                    const error = await response.json();
+                    const error = await response.json().catch(() => ({}));
                     throw new Error(error.detail || 'Update failed');
                 }
 
                 showToast('Profile updated');
+                await loadProfile(currentToken);
             } catch (err) {
                 showToast(err.message, true);
             }
@@ -187,7 +482,7 @@
                 });
 
                 if (!response.ok) {
-                    const error = await response.json();
+                    const error = await response.json().catch(() => ({}));
                     throw new Error(error.detail || 'Password change failed');
                 }
 
@@ -198,41 +493,113 @@
             }
         });
 
-        // Auto-load profile after login/register
-        const originalHandleForm = handleForm;
-        async function handleFormWithProfile(formId, endpoint) {
-            const form = document.getElementById(formId);
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const formData = new FormData(form);
-                const payload = Object.fromEntries(formData.entries());
+        playButton.addEventListener('click', () => {
+            if (!currentToken) return;
+            window.location.href = `${GAME_URL}${encodeURIComponent(currentToken)}`;
+        });
 
-                try {
-                    const response = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
+        // ── Donate System ──────────────────────────────────────────────
+        // To integrate a payment provider: implement processPayment() below.
+        // It receives the package object and the current user token.
+        // Call your payment SDK here (Stripe, PayPal, YooKassa, etc).
+        // On success, call grantCurrency(pkg, token) to credit the user.
 
-                    if (!response.ok) {
-                        const error = await response.json();
-                        throw new Error(error.detail || 'Request failed');
-                    }
+        const DONATE_PACKAGES = [
+            {
+                id: 'starter',
+                label: 'Starter Pack',
+                currency: 15000,
+                price: 0.99,
+                badge: null,
+            },
+            {
+                id: 'soldier',
+                label: 'Soldier Pack',
+                currency: 45000,
+                price: 2.99,
+                badge: 'Popular',
+            },
+            {
+                id: 'commander',
+                label: 'Commander Pack',
+                currency: 80000,
+                price: 4.99,
+                badge: 'Best Value',
+            },
+        ];
 
-                    const data = await response.json();
-                    tokenDisplay.textContent = data.token;
-                    showToast('Token updated');
-                    
-                    // Load profile
-                    await loadProfile(data.token);
-                } catch (err) {
-                    showToast(err.message, true);
-                }
+        function renderDonateCards() {
+            const grid = document.getElementById('donate-grid');
+            grid.innerHTML = '';
+            DONATE_PACKAGES.forEach(pkg => {
+                const card = document.createElement('div');
+                card.className = 'donate-card';
+                card.innerHTML = `
+                    ${pkg.badge ? `<span class="donate-badge">${pkg.badge}</span>` : ''}
+                    <span class="donate-corner tl"></span>
+                    <span class="donate-corner tr"></span>
+                    <span class="donate-corner bl"></span>
+                    <span class="donate-corner br"></span>
+                    <div class="donate-icon">$</div>
+                    <div class="donate-amount">Amount: ${pkg.currency.toLocaleString()}$</div>
+                    <button class="donate-btn" data-pkg-id="${pkg.id}">
+                        Buy ($${pkg.price.toFixed(2)})
+                    </button>
+                `;
+                card.querySelector('.donate-btn').addEventListener('click', () => {
+                    onDonateClick(pkg);
+                });
+                grid.appendChild(card);
             });
         }
 
-        handleFormWithProfile('register-form', '/api/register');
-        handleFormWithProfile('login-form', '/api/login');
+        function onDonateClick(pkg) {
+            if (!currentToken) {
+                showToast('Please log in before purchasing.', true);
+                return;
+            }
+            // ── PAYMENT INTEGRATION POINT ──
+            // Replace the stub below with your real payment flow.
+            // processPayment(pkg, currentToken);
+            showToast(`Payment system not connected yet. Package: ${pkg.label}`, true);
+        }
+
+        // Called by payment provider after successful payment confirmation.
+        // token — user's auth token; pkg — the DONATE_PACKAGES entry.
+        async function grantCurrency(pkg, token) {
+            try {
+                const response = await fetch(`/api/donate/grant`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, package_id: pkg.id, amount: pkg.currency })
+                });
+                if (!response.ok) throw new Error('Failed to grant currency');
+                showToast(`+${pkg.currency.toLocaleString()}$ credited to your account!`);
+                await loadProfile(token);
+            } catch (err) {
+                showToast('Currency grant failed: ' + err.message, true);
+            }
+        }
+
+        // Stub: replace with real payment SDK call
+        // async function processPayment(pkg, token) {
+        //     // e.g. Stripe:
+        //     // const { error } = await stripe.redirectToCheckout({ lineItems: [...], ... });
+        //     // After redirect back and payment confirmed, call:
+        //     // await grantCurrency(pkg, token);
+        // }
+
+        renderDonateCards();
+
+        // Restore session if token persisted
+        if (currentToken) {
+            updateAuthUI();
+            updatePlayState();
+            loadProfile(currentToken);
+        } else {
+            updateAuthUI();
+            updatePlayState();
+        }
     </script>
 </body>
 </html>

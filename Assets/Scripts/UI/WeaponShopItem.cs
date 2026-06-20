@@ -82,7 +82,8 @@ public class WeaponShopItem : MonoBehaviour
         if (purchaseButton != null)
         {
             purchaseButton.gameObject.SetActive(!isOwned);
-            purchaseButton.interactable = GameManager.Instance != null && GameManager.Instance.Money >= price;
+            bool canAfford = MoneyManager.Instance != null && MoneyManager.Instance.CurrentMoney >= price;
+            purchaseButton.interactable = !isOwned && canAfford;
             purchaseButton.onClick.RemoveAllListeners();
             purchaseButton.onClick.AddListener(OnPurchaseClicked);
         }

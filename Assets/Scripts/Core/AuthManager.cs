@@ -11,31 +11,54 @@ public class AuthManager : MonoBehaviour
 {
     [Header("Backend")]
     [SerializeField] private string backendBaseUrl = "http://localhost:8000";
+    [SerializeField] private bool autoDetectBackendUrl = true;
 
     [Header("UI")]
     [SerializeField] private GameObject gatePanel;
     [SerializeField] private Text gateMessage;
+    [SerializeField] private string landingPageUrl = "http://localhost:8000";
 
     [Header("Gameplay Locks")]
     [SerializeField] private Behaviour[] disabledBehaviours;
     [SerializeField] private GameObject[] disabledObjects;
 
     public static string CurrentToken { get; private set; }
+    public static bool IsTokenMissing { get; private set; }
 
     public event Action<string> OnTokenValidated;
+    public event Action OnTokenMissing;
 
     private void Awake()
     {
         SetGateState(true, "Validating access token...");
         ToggleGameplay(false);
+
+        // Auto-detect backend URL from page URL (WebGL only)
+        if (autoDetectBackendUrl)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            string pageUrl = Application.absoluteURL;
+            if (!string.IsNullOrEmpty(pageUrl))
+            {
+                System.Uri uri = new System.Uri(pageUrl);
+                backendBaseUrl = $"{uri.Scheme}://{uri.Host}:8000";
+                landingPageUrl = $"{uri.Scheme}://{uri.Host}:8000";
+                Debug.Log($"[AuthManager] Auto-detected backend URL: {backendBaseUrl}");
+            }
+#endif
+        }
     }
 
     private void Start()
     {
+        IsTokenMissing = false;
+
         string token = ExtractTokenFromUrl();
         if (string.IsNullOrEmpty(token))
         {
-            SetGateState(true, "No access token. Please log in on the website and launch the game from your account.");
+            IsTokenMissing = true;
+            SetGateState(true, $"Access token not found.\n\nPlease log in at:\n{landingPageUrl}\n\nThen press PLAY to launch the game.");
+            OnTokenMissing?.Invoke();
             return;
         }
 
@@ -99,14 +122,15 @@ public class AuthManager : MonoBehaviour
 #endif
             if (hasError)
             {
-                string message = string.IsNullOrEmpty(request.downloadHandler.text)
-                    ? request.error
-                    : request.downloadHandler.text;
-                SetGateState(true, $"Token validation failed. {message}");
+                Debug.LogWarning($"[AuthManager] Token validation failed: {request.error} | {request.downloadHandler?.text}");
+                IsTokenMissing = true;
+                SetGateState(true, $"Invalid or expired access token.\n\nPlease log in again at:\n{landingPageUrl}\n\nThen press PLAY to launch the game.");
+                OnTokenMissing?.Invoke();
                 yield break;
             }
 
             CurrentToken = token;
+            IsTokenMissing = false;
             SetGateState(false, "Token validated. Welcome back.");
             ToggleGameplay(true);
             OnTokenValidated?.Invoke(token);

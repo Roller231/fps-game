@@ -54,6 +54,9 @@ public class WeaponInventory : MonoBehaviour
     {
         ownedWeapons.Clear();
         ammoStates.Clear();
+        System.Array.Clear(equippedWeapons, 0, equippedWeapons.Length);
+        currentSlot = 0;
+        var assignedWeapons = new HashSet<string>();
         
         // Загружаем купленное оружие из профиля
         if (profile.weapons != null)
@@ -76,7 +79,6 @@ public class WeaponInventory : MonoBehaviour
             if (pistol != null)
             {
                 ownedWeapons.Add(pistol.weaponName);
-                equippedWeapons[0] = pistol;
                 ammoStates[pistol.weaponName] = new WeaponAmmoState
                 {
                     currentAmmo = pistol.magazineSize,
@@ -85,13 +87,74 @@ public class WeaponInventory : MonoBehaviour
             }
         }
 
-        // Загружаем экипированное оружие
-        if (!string.IsNullOrEmpty(profile.equipped_weapon))
+        // Загружаем экипированные слоты из профиля
+        if (profile.equipped_slots != null && profile.equipped_slots.Length > 0)
+        {
+            for (int i = 0; i < maxSlots && i < profile.equipped_slots.Length; i++)
+            {
+                string slotName = profile.equipped_slots[i];
+                if (string.IsNullOrEmpty(slotName) || assignedWeapons.Contains(slotName))
+                    continue;
+
+                var weapon = GetWeaponByName(slotName);
+                if (weapon != null && IsOwned(weapon))
+                {
+                    equippedWeapons[i] = weapon;
+                    assignedWeapons.Add(weapon.weaponName);
+                }
+            }
+        }
+
+        // Fallback на один слот из старого поля, если ничего не поставили
+        if (assignedWeapons.Count == 0 && !string.IsNullOrEmpty(profile.equipped_weapon))
         {
             var weapon = GetWeaponByName(profile.equipped_weapon);
             if (weapon != null && IsOwned(weapon))
             {
                 equippedWeapons[0] = weapon;
+                assignedWeapons.Add(weapon.weaponName);
+            }
+        }
+
+        // Заполнить оставшиеся пустые слоты любым доступным оружием
+        for (int i = 0; i < maxSlots; i++)
+        {
+            if (equippedWeapons[i] == null)
+            {
+                var fallback = FindFirstOwnedWeapon(assignedWeapons);
+                if (fallback != null)
+                {
+                    equippedWeapons[i] = fallback;
+                    assignedWeapons.Add(fallback.weaponName);
+                }
+            }
+        }
+
+        // Гарантировать хотя бы одно оружие
+        if (assignedWeapons.Count == 0)
+        {
+            var fallback = FindFirstOwnedWeapon(null);
+            if (fallback != null)
+            {
+                equippedWeapons[0] = fallback;
+                assignedWeapons.Add(fallback.weaponName);
+            }
+        }
+
+        // Синхронизировать текущий слот с первым непустым
+        if (equippedWeapons[currentSlot] == null)
+        {
+            for (int i = 0; i < maxSlots; i++)
+            {
+                if (equippedWeapons[i] != null)
+                {
+                    currentSlot = i;
+                    break;
+                }
+            }
+            if (currentSlot >= maxSlots || equippedWeapons[currentSlot] == null)
+            {
+                currentSlot = 0;
             }
         }
 
@@ -136,6 +199,13 @@ public class WeaponInventory : MonoBehaviour
         }
 
         profile.weapons = weaponsList.ToArray();
+
+        var slotNames = new string[maxSlots];
+        for (int i = 0; i < maxSlots; i++)
+        {
+            slotNames[i] = equippedWeapons[i] != null ? equippedWeapons[i].weaponName : null;
+        }
+        profile.equipped_slots = slotNames;
         profile.equipped_weapon = CurrentWeapon != null ? CurrentWeapon.weaponName : null;
     }
 
@@ -345,6 +415,19 @@ public class WeaponInventory : MonoBehaviour
                 owned.Add(weapon);
         }
         return owned;
+    }
+
+    private WeaponData FindFirstOwnedWeapon(HashSet<string> excluded)
+    {
+        if (allWeapons == null) return null;
+        foreach (var weapon in allWeapons)
+        {
+            if (weapon == null) continue;
+            if (!IsOwned(weapon)) continue;
+            if (excluded != null && excluded.Contains(weapon.weaponName)) continue;
+            return weapon;
+        }
+        return null;
     }
 
     private int FindNextNonEmptySlot(int from)
