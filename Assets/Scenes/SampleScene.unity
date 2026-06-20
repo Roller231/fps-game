@@ -231,9 +231,9 @@ RectTransform:
   - {fileID: 1225383503}
   m_Father: {fileID: 756802477}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -677, y: -403}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -627, y: -353}
   m_SizeDelta: {x: 482.9661, y: 90.5561}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &134165780
@@ -279,7 +279,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 134165781}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1785703892}
+        m_TargetAssemblyTypeName: ExternalLinkOpener, Assembly-CSharp
+        m_MethodName: OpenLandingPage
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &134165781
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -525,7 +537,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 313418300}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1785703892}
+        m_TargetAssemblyTypeName: ExternalLinkOpener, Assembly-CSharp
+        m_MethodName: OpenLandingPage
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &313418300
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1995,9 +2019,9 @@ RectTransform:
   - {fileID: 1251647709}
   m_Father: {fileID: 756802477}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -677, y: -193}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -627, y: -143}
   m_SizeDelta: {x: 482.9661, y: 90.5561}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1216790788
@@ -2710,6 +2734,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   backendBaseUrl: http://localhost:8000
+  autoDetectBackendUrl: 1
   autoSaveInterval: 5
   profileAvatarImage: {fileID: 682918527}
   profileDisplayNameText: {fileID: 2103734773}
@@ -2743,8 +2768,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   backendBaseUrl: http://localhost:8000
+  autoDetectBackendUrl: 1
   gatePanel: {fileID: 0}
   gateMessage: {fileID: 0}
+  landingPageUrl: http://localhost:8000
   disabledBehaviours: []
   disabledObjects: []
 --- !u!1 &1387320622
@@ -2829,7 +2856,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1387320625}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1785703892}
+        m_TargetAssemblyTypeName: ExternalLinkOpener, Assembly-CSharp
+        m_MethodName: OpenLandingPage
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1387320625
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2977,9 +3016,9 @@ RectTransform:
   - {fileID: 1113523975}
   m_Father: {fileID: 756802477}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -677, y: -297}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -627, y: -247}
   m_SizeDelta: {x: 482.9661, y: 90.5561}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1522913981
@@ -3335,6 +3374,7 @@ GameObject:
   - component: {fileID: 1785703886}
   - component: {fileID: 1785703890}
   - component: {fileID: 1785703891}
+  - component: {fileID: 1785703892}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -3458,6 +3498,19 @@ MonoBehaviour:
   displayNameText: {fileID: 2103734773}
   balanceText: {fileID: 2007680751}
   unauthorizedPanel: {fileID: 606896835}
+--- !u!114 &1785703892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1785703885}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac1e32d55f59e5642bfa9cbbbb5f60d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultUrl: 
 --- !u!1 &1793348145
 GameObject:
   m_ObjectHideFlags: 0
@@ -3965,7 +4018,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1907557059}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1785703892}
+        m_TargetAssemblyTypeName: ExternalLinkOpener, Assembly-CSharp
+        m_MethodName: OpenLandingPage
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1907557059
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4223,7 +4288,7 @@ MonoBehaviour:
     m_Font: {fileID: 12800000, guid: 931ac84bcc8b8b742bb8eadf7e6002b6, type: 3}
     m_FontSize: 40
     m_FontStyle: 0
-    m_BestFit: 0
+    m_BestFit: 1
     m_MinSize: 10
     m_MaxSize: 40
     m_Alignment: 4

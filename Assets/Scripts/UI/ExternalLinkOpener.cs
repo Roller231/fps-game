@@ -35,4 +35,41 @@ public class ExternalLinkOpener : MonoBehaviour
         Debug.Log($"[ExternalLinkOpener] Opening external link: {target}");
         Application.OpenURL(target);
     }
+
+    /// <summary>
+    /// Opens the landing page on the same host where the game is running.
+    /// Automatically detects host from Application.absoluteURL (WebGL only).
+    /// Falls back to localhost:8000 in Editor.
+    /// </summary>
+    public void OpenLandingPage()
+    {
+        string landingUrl = GetLandingPageUrl();
+        Debug.Log($"[ExternalLinkOpener] Opening landing page: {landingUrl}");
+        Application.OpenURL(landingUrl);
+    }
+
+    /// <summary>
+    /// Gets the landing page URL based on current host.
+    /// </summary>
+    private string GetLandingPageUrl()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        string pageUrl = Application.absoluteURL;
+        if (!string.IsNullOrEmpty(pageUrl))
+        {
+            try
+            {
+                System.Uri uri = new System.Uri(pageUrl);
+                // Landing page runs on same host, port 8000
+                return $"{uri.Scheme}://{uri.Host}:8000";
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"[ExternalLinkOpener] Failed to parse URL: {ex.Message}");
+            }
+        }
+#endif
+        // Fallback for Editor or if URL parsing fails
+        return "http://localhost:8000";
+    }
 }
