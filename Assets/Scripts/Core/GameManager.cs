@@ -47,7 +47,7 @@ public class GameManager : MonoBehaviour
         }
         if (baseManager == null) baseManager = FindObjectOfType<BaseManager>();
         
-        currentMoney = PlayerPrefs.GetInt("PlayerMoney", startingMoney);
+        // Баланс загружается через ProfileService
     }
 
     private void OnDestroy()
@@ -69,8 +69,6 @@ public class GameManager : MonoBehaviour
         if (currentMoney >= amount)
         {
             currentMoney -= amount;
-            PlayerPrefs.SetInt("PlayerMoney", currentMoney);
-            PlayerPrefs.Save();
             return true;
         }
         return false;
@@ -79,7 +77,5 @@ public class GameManager : MonoBehaviour
     public void AddMoney(int amount)
     {
         currentMoney += amount;
-        PlayerPrefs.SetInt("PlayerMoney", currentMoney);
-        PlayerPrefs.Save();
     }
 }

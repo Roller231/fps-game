@@ -173,6 +173,10 @@ public class WeaponHolder : MonoBehaviour
         var weapon = instance.GetComponent<Weapon>();
         if (weapon == null) weapon = instance.AddComponent<Weapon>();
         weapon.Initialize(playerCamera, data);
+        if (WeaponInventory.Instance != null && data != null && WeaponInventory.Instance.TryGetSavedAmmo(data.weaponName, out var ammoState))
+        {
+            weapon.OverrideAmmo(ammoState.currentAmmo, ammoState.reserveAmmo);
+        }
         weapon.OnShot += HandleShot;
 
         weapons.Add(weapon);
@@ -229,6 +233,35 @@ public class WeaponHolder : MonoBehaviour
             currentIndex = Mathf.Clamp(currentIndex, 0, weapons.Count - 1);
             for (int i = 0; i < weapons.Count; i++) weapons[i].gameObject.SetActive(i == currentIndex);
             OnWeaponChanged?.Invoke(CurrentWeapon);
+        }
+    }
+
+    public Dictionary<string, WeaponAmmoState> GetRuntimeStates()
+    {
+        var result = new Dictionary<string, WeaponAmmoState>(weapons.Count);
+        foreach (var weapon in weapons)
+        {
+            if (weapon != null && weapon.Data != null)
+            {
+                result[weapon.Data.weaponName] = new WeaponAmmoState
+                {
+                    currentAmmo = weapon.CurrentAmmo,
+                    reserveAmmo = weapon.ReserveAmmo
+                };
+            }
+        }
+        return result;
+    }
+
+    public void ApplyAmmoStates(Dictionary<string, WeaponAmmoState> states)
+    {
+        if (states == null) return;
+        foreach (var weapon in weapons)
+        {
+            if (weapon != null && weapon.Data != null && states.TryGetValue(weapon.Data.weaponName, out var ammo))
+            {
+                weapon.OverrideAmmo(ammo.currentAmmo, ammo.reserveAmmo);
+            }
         }
     }
 }

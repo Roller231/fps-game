@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FPS Command Center</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <section class="hero">
+        <div class="hero-content">
+            <h1>FPS Command Center</h1>
+            <p>Sign up or sign in to receive your secure access token. Use the token to enter the game or complete purchases.</p>
+        </div>
+    </section>
+
+    <main class="cards">
+        <div class="card">
+            <h2>Create Account</h2>
+            <form id="register-form">
+                <label>Username
+                    <input type="text" name="username" required>
+                </label>
+                <label>Display Name (optional)
+                    <input type="text" name="display_name" placeholder="Leave empty to use username">
+                </label>
+                <label>Password
+                    <input type="password" name="password" required>
+                </label>
+                <label>Repeat password
+                    <input type="password" name="confirm_password" required>
+                </label>
+                <button type="submit">Register</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Log In</h2>
+            <form id="login-form">
+                <label>Username
+                    <input type="text" name="username" required>
+                </label>
+                <label>Password
+                    <input type="password" name="password" required>
+                </label>
+                <button type="submit">Sign in</button>
+            </form>
+        </div>
+
+        <div class="card token-card">
+            <h2>Your Entry Token</h2>
+            <p class="token-value" id="token-display">No token yet.</p>
+            <p class="token-hint">Copy this token and append it to the game link:<br><code>?token=YOUR_TOKEN</code></p>
+        </div>
+
+        <div class="card profile-card" id="profile-card" style="display:none;">
+            <h2>Profile Settings</h2>
+            <form id="profile-form">
+                <label>Display Name
+                    <input type="text" name="display_name" id="profile-display-name" required>
+                </label>
+                <label>Avatar URL (optional)
+                    <input type="text" name="avatar_url" id="profile-avatar" placeholder="https://...">
+                </label>
+                <button type="submit">Save Profile</button>
+            </form>
+            <hr style="margin: 20px 0; border: 1px solid rgba(255,255,255,0.1);">
+            <h3>Change Password</h3>
+            <form id="password-form">
+                <label>Current Password
+                    <input type="password" name="current_password" required>
+                </label>
+                <label>New Password
+                    <input type="password" name="new_password" required>
+                </label>
+                <button type="submit">Change Password</button>
+            </form>
+        </div>
+    </main>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const toast = document.getElementById('toast');
+        const tokenDisplay = document.getElementById('token-display');
+
+        function showToast(message, isError = false) {
+            toast.textContent = message;
+            toast.className = 'toast ' + (isError ? 'error' : 'success');
+            toast.style.opacity = 1;
+            setTimeout(() => toast.style.opacity = 0, 3000);
+        }
+
+        async function handleForm(formId, endpoint) {
+            const form = document.getElementById(formId);
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const payload = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.detail || 'Request failed');
+                    }
+
+                    const data = await response.json();
+                    tokenDisplay.textContent = data.token;
+                    showToast('Token updated');
+                } catch (err) {
+                    showToast(err.message, true);
+                }
+            });
+        }
+
+        handleForm('register-form', '/api/register');
+        handleForm('login-form', '/api/login');
+
+        let currentToken = null;
+
+        async function loadProfile(token) {
+            try {
+                const response = await fetch(`/api/profile?token=${encodeURIComponent(token)}`);
+                if (!response.ok) throw new Error('Failed to load profile');
+                
+                const profile = await response.json();
+                currentToken = token;
+                
+                document.getElementById('profile-display-name').value = profile.display_name;
+                document.getElementById('profile-avatar').value = profile.avatar_url || '';
+                document.getElementById('profile-card').style.display = 'block';
+                
+                showToast('Profile loaded');
+            } catch (err) {
+                showToast(err.message, true);
+            }
+        }
+
+        document.getElementById('profile-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentToken) {
+                showToast('Please log in first', true);
+                return;
+            }
+
+            const formData = new FormData(e.target);
+            const payload = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch(`/api/profile?token=${encodeURIComponent(currentToken)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Update failed');
+                }
+
+                showToast('Profile updated');
+            } catch (err) {
+                showToast(err.message, true);
+            }
+        });
+
+        document.getElementById('password-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentToken) {
+                showToast('Please log in first', true);
+                return;
+            }
+
+            const formData = new FormData(e.target);
+            const payload = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch(`/api/profile/password?token=${encodeURIComponent(currentToken)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Password change failed');
+                }
+
+                showToast('Password changed');
+                e.target.reset();
+            } catch (err) {
+                showToast(err.message, true);
+            }
+        });
+
+        // Auto-load profile after login/register
+        const originalHandleForm = handleForm;
+        async function handleFormWithProfile(formId, endpoint) {
+            const form = document.getElementById(formId);
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const payload = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.detail || 'Request failed');
+                    }
+
+                    const data = await response.json();
+                    tokenDisplay.textContent = data.token;
+                    showToast('Token updated');
+                    
+                    // Load profile
+                    await loadProfile(data.token);
+                } catch (err) {
+                    showToast(err.message, true);
+                }
+            });
+        }
+
+        handleFormWithProfile('register-form', '/api/register');
+        handleFormWithProfile('login-form', '/api/login');
+    </script>
+</body>
+</html>

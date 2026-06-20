@@ -145,13 +145,10 @@ public class SupplyBox : MonoBehaviour
             if (!weaponInventory.IsOwned(weaponData)) continue;
 
             // Пополняем боезапас до максимума
-            string ammoKey = $"Weapon_{weaponData.weaponName}_ReserveAmmo";
-            PlayerPrefs.SetInt(ammoKey, weaponData.reservedAmmo);
-            
             Debug.Log($"[SupplyBox] Refilled {weaponData.weaponName} ammo to {weaponData.reservedAmmo}");
         }
 
-        PlayerPrefs.Save();
+        // Сохранение через ProfileService автоматически
 
         // Обновить текущее оружие если оно экипировано
         var holder = FindObjectOfType<WeaponHolder>();

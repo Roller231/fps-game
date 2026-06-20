@@ -15,6 +15,7 @@ public class WeaponInventory : MonoBehaviour
     [SerializeField] private WeaponData[] allWeapons;
 
     private HashSet<string> ownedWeapons = new HashSet<string>();
+    private readonly Dictionary<string, WeaponAmmoState> ammoStates = new Dictionary<string, WeaponAmmoState>();
     private WeaponData[] equippedWeapons;
     private int currentSlot = 0;
 
@@ -36,26 +37,129 @@ public class WeaponInventory : MonoBehaviour
         Instance = this;
 
         equippedWeapons = new WeaponData[maxSlots];
-        LoadInventory();
+        // LoadInventory вызывается через ProfileService.LoadFromProfile
     }
 
-    private void Update()
-    {
-        // ВРЕМЕННО: Очистка сохранений по F9
-        if (Input.GetKeyDown(KeyCode.F9))
-        {
-            Debug.LogWarning("Clearing all PlayerPrefs!");
-            PlayerPrefs.DeleteAll();
-            PlayerPrefs.Save();
-            UnityEngine.SceneManagement.SceneManager.LoadScene(
-                UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex
-            );
-        }
-    }
+    // PlayerPrefs больше не используется - всё через ProfileService
 
     private void OnDestroy()
     {
         if (Instance == this) Instance = null;
+    }
+
+    /// <summary>
+    /// Загружает инвентарь из профиля (вызывается ProfileService)
+    /// </summary>
+    public void LoadFromProfile(ProfileData profile)
+    {
+        ownedWeapons.Clear();
+        ammoStates.Clear();
+        
+        // Загружаем купленное оружие из профиля
+        if (profile.weapons != null)
+        {
+            foreach (var w in profile.weapons)
+            {
+                ownedWeapons.Add(w.weapon_name);
+                ammoStates[w.weapon_name] = new WeaponAmmoState
+                {
+                    currentAmmo = Mathf.Max(0, w.magazine_ammo),
+                    reserveAmmo = Mathf.Max(0, w.reserve_ammo)
+                };
+            }
+        }
+
+        // Дать стартовый пистолет если ничего нет
+        if (ownedWeapons.Count == 0 && allWeapons != null && allWeapons.Length > 0)
+        {
+            var pistol = GetWeaponByName("Pistol");
+            if (pistol != null)
+            {
+                ownedWeapons.Add(pistol.weaponName);
+                equippedWeapons[0] = pistol;
+                ammoStates[pistol.weaponName] = new WeaponAmmoState
+                {
+                    currentAmmo = pistol.magazineSize,
+                    reserveAmmo = pistol.reservedAmmo
+                };
+            }
+        }
+
+        // Загружаем экипированное оружие
+        if (!string.IsNullOrEmpty(profile.equipped_weapon))
+        {
+            var weapon = GetWeaponByName(profile.equipped_weapon);
+            if (weapon != null && IsOwned(weapon))
+            {
+                equippedWeapons[0] = weapon;
+            }
+        }
+
+        OnInventoryChanged?.Invoke();
+        Debug.Log($"[WeaponInventory] Loaded from profile: {ownedWeapons.Count} weapons owned");
+    }
+
+    /// <summary>
+    /// Сохраняет инвентарь в профиль (вызывается ProfileService)
+    /// </summary>
+    public void SaveToProfile(ProfileData profile)
+    {
+        var weaponsList = new List<WeaponDataItem>();
+
+        WeaponHolder holder = FindObjectOfType<WeaponHolder>();
+        Dictionary<string, WeaponAmmoState> runtimeStates = holder != null ? holder.GetRuntimeStates() : null;
+
+        foreach (var weaponName in ownedWeapons)
+        {
+            WeaponAmmoState state;
+            if (runtimeStates != null && runtimeStates.TryGetValue(weaponName, out state))
+            {
+                ammoStates[weaponName] = state;
+            }
+            else if (!ammoStates.TryGetValue(weaponName, out state))
+            {
+                var weaponData = GetWeaponByName(weaponName);
+                state = new WeaponAmmoState
+                {
+                    currentAmmo = weaponData != null ? weaponData.magazineSize : 0,
+                    reserveAmmo = weaponData != null ? weaponData.reservedAmmo : 0
+                };
+                ammoStates[weaponName] = state;
+            }
+
+            weaponsList.Add(new WeaponDataItem
+            {
+                weapon_name = weaponName,
+                reserve_ammo = state.reserveAmmo,
+                magazine_ammo = state.currentAmmo
+            });
+        }
+
+        profile.weapons = weaponsList.ToArray();
+        profile.equipped_weapon = CurrentWeapon != null ? CurrentWeapon.weaponName : null;
+    }
+
+    public bool TryGetSavedAmmo(string weaponName, out WeaponAmmoState state)
+    {
+        if (ammoStates.TryGetValue(weaponName, out state))
+        {
+            return true;
+        }
+
+        var data = GetWeaponByName(weaponName);
+        if (data != null)
+        {
+            state = new WeaponAmmoState
+            {
+                currentAmmo = data.magazineSize,
+                reserveAmmo = data.reservedAmmo
+            };
+            ammoStates[weaponName] = state;
+            return true;
+        }
+
+        state = default;
+        return false;
     }
 
     private void LoadInventory()
@@ -79,7 +183,6 @@ public class WeaponInventory : MonoBehaviour
             {
                 ownedWeapons.Add(pistol.weaponName);
                 equippedWeapons[0] = pistol; // Экипировать в первый слот
-                SaveInventory();
             }
         }
 
@@ -135,8 +238,8 @@ public class WeaponInventory : MonoBehaviour
         if (MoneyManager.Instance != null && MoneyManager.Instance.SpendMoney(price))
         {
             ownedWeapons.Add(weapon.weaponName);
-            SaveInventory();
             OnInventoryChanged?.Invoke();
+            // Сохранение через ProfileService автоматически
             return true;
         }
         return false;
@@ -171,7 +274,6 @@ public class WeaponInventory : MonoBehaviour
             SwitchToSlot(slotIndex);
         }
 
-        SaveInventory();
         OnInventoryChanged?.Invoke();
         return true;
     }
@@ -180,7 +282,6 @@ public class WeaponInventory : MonoBehaviour
     {
         if (slotIndex < 0 || slotIndex >= maxSlots) return;
         equippedWeapons[slotIndex] = null;
-        SaveInventory();
         OnInventoryChanged?.Invoke();
 
         // Если сняли оружие с активного слота — перейти к ближайшему непустому
@@ -271,4 +372,10 @@ public class WeaponInventory : MonoBehaviour
         }
         return currentSlot >= 0 && currentSlot < maxSlots ? currentSlot : 0;
     }
+}
+
+public struct WeaponAmmoState
+{
+    public int currentAmmo;
+    public int reserveAmmo;
 }

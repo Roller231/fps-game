@@ -52,9 +52,7 @@ public class Weapon : MonoBehaviour
         fireCamera = cam;
         if (overrideData != null) data = overrideData;
         
-        // Загружаем сохранённые патроны
-        LoadAmmo();
-        
+        // Патроны загружаются через ProfileService
         if (data != null && currentAmmo == 0 && reserveAmmo == 0)
         {
             currentAmmo = data.magazineSize;
@@ -63,38 +61,7 @@ public class Weapon : MonoBehaviour
         OnAmmoChanged?.Invoke();
     }
 
-    /// <summary>
-    /// Загрузить патроны из PlayerPrefs
-    /// </summary>
-    public void LoadAmmo()
-    {
-        if (data == null) return;
-
-        string ammoKey = $"Weapon_{data.weaponName}_ReserveAmmo";
-        string magKey = $"Weapon_{data.weaponName}_MagazineAmmo";
-
-        if (PlayerPrefs.HasKey(ammoKey))
-        {
-            reserveAmmo = PlayerPrefs.GetInt(ammoKey);
-            currentAmmo = PlayerPrefs.GetInt(magKey, data.magazineSize);
-            Debug.Log($"[Weapon] Loaded {data.weaponName}: mag={currentAmmo}, reserve={reserveAmmo}");
-        }
-    }
-
-    /// <summary>
-    /// Сохранить патроны в PlayerPrefs
-    /// </summary>
-    public void SaveAmmo()
-    {
-        if (data == null) return;
-
-        string ammoKey = $"Weapon_{data.weaponName}_ReserveAmmo";
-        string magKey = $"Weapon_{data.weaponName}_MagazineAmmo";
-
-        PlayerPrefs.SetInt(ammoKey, reserveAmmo);
-        PlayerPrefs.SetInt(magKey, currentAmmo);
-        PlayerPrefs.Save();
-    }
+    // Патроны теперь сохраняются через ProfileService
 
     /// <summary>
     /// Пополнить боезапас до максимума
@@ -104,7 +71,6 @@ public class Weapon : MonoBehaviour
         if (data == null) return;
 
         reserveAmmo = data.reservedAmmo;
-        SaveAmmo();
         OnAmmoChanged?.Invoke();
         Debug.Log($"[Weapon] Refilled {data.weaponName} ammo to {reserveAmmo}");
     }
@@ -160,7 +126,6 @@ public class Weapon : MonoBehaviour
 
         OnShot?.Invoke();
         OnAmmoChanged?.Invoke();
-        SaveAmmo(); // Сохраняем патроны после выстрела
         return true;
     }
 
@@ -292,12 +257,18 @@ var mf = Instantiate(data.muzzleFlashPrefab, muzzle.position, muzzle.rotation, m
         isReloading = false;
         OnReloadEnd?.Invoke();
         OnAmmoChanged?.Invoke();
-        SaveAmmo(); // Сохраняем патроны после перезарядки
     }
 
     public void AddReserveAmmo(int amount)
     {
         reserveAmmo += amount;
+        OnAmmoChanged?.Invoke();
+    }
+
+    public void OverrideAmmo(int current, int reserve)
+    {
+        currentAmmo = Mathf.Max(0, current);
+        reserveAmmo = Mathf.Max(0, reserve);
         OnAmmoChanged?.Invoke();
     }
 }

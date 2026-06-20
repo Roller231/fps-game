@@ -19,22 +19,23 @@ public class MoneyManager : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
-        
-        LoadMoney();
     }
 
-    private void LoadMoney()
+    /// <summary>
+    /// Устанавливает баланс (вызывается ProfileService при загрузке)
+    /// </summary>
+    public void SetMoney(int amount)
     {
-        currentMoney = PlayerPrefs.GetInt("PlayerMoney", 0);
+        currentMoney = amount;
         OnMoneyChanged?.Invoke(currentMoney);
+        Debug.Log($"[MoneyManager] Money set to {currentMoney}");
     }
 
     public void AddMoney(int amount, Vector3 worldPosition = default)
     {
         if (amount <= 0) return;
         currentMoney += amount;
-        PlayerPrefs.SetInt("PlayerMoney", currentMoney);
-        Debug.Log($"[MoneyManager] AddMoney: +{amount}, total={currentMoney}, subscribers={OnMoneyEarned?.GetInvocationList().Length ?? 0}");
+        Debug.Log($"[MoneyManager] AddMoney: +{amount}, total={currentMoney}");
         OnMoneyChanged?.Invoke(currentMoney);
         OnMoneyEarned?.Invoke(amount, worldPosition);
     }
@@ -43,7 +44,6 @@ public class MoneyManager : MonoBehaviour
     {
         if (amount <= 0 || currentMoney < amount) return false;
         currentMoney -= amount;
-        PlayerPrefs.SetInt("PlayerMoney", currentMoney);
         OnMoneyChanged?.Invoke(currentMoney);
         return true;
     }
@@ -56,7 +56,6 @@ public class MoneyManager : MonoBehaviour
     public void ResetMoney()
     {
         currentMoney = 0;
-        PlayerPrefs.SetInt("PlayerMoney", 0);
         OnMoneyChanged?.Invoke(currentMoney);
     }
 }
