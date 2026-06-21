@@ -275,7 +275,13 @@
         const logoutSection = document.getElementById('logout-section');
         const loggedUsername = document.getElementById('logged-username');
         const logoutButton = document.getElementById('logout-button');
-        const GAME_URL = "http://{{ server_host }}:{{ webgl_port }}/?token=";
+        const serverHost = "{{ server_host }}";
+        const webglPort = "{{ webgl_port }}";
+        const isLocalServer = ['localhost', '127.0.0.1'].includes(serverHost);
+        const isProdHost = !isLocalServer && (window.location.hostname === serverHost || window.location.hostname === `www.${serverHost}`);
+        const GAME_URL = isProdHost
+            ? '/game/?token='
+            : `http://${serverHost}:${webglPort}/?token=`;
 
         let currentMode = 'login';
         let currentToken = localStorage.getItem('fps_token') || null;
