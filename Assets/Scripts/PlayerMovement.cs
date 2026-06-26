@@ -43,6 +43,8 @@ public class PlayerMovement : MonoBehaviour
     private float defaultHeight;
     private Vector3 defaultCenter;
     private Vector3 camDefaultLocalPos;
+    private float currentMouseSensitivity;
+    private float invertMultiplier = 1f;
 
     private void Awake()
     {
@@ -54,6 +56,19 @@ public class PlayerMovement : MonoBehaviour
         defaultHeight = characterController.height;
         defaultCenter = characterController.center;
         if (playerCamera != null) camDefaultLocalPos = playerCamera.localPosition;
+
+        currentMouseSensitivity = mouseSensitivity;
+        ApplySettingsSnapshot();
+    }
+
+    private void OnEnable()
+    {
+        SubscribeToSettings();
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeFromSettings();
     }
 
     private void Update()
@@ -71,8 +86,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleLook()
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+        float mouseX = Input.GetAxis("Mouse X") * currentMouseSensitivity;
+        float mouseY = Input.GetAxis("Mouse Y") * currentMouseSensitivity * invertMultiplier;
 
         transform.Rotate(Vector3.up * mouseX);
 
@@ -89,6 +104,44 @@ public class PlayerMovement : MonoBehaviour
         {
             playerCamera.localRotation = Quaternion.Euler(cameraPitch, 0f, 0f);
         }
+    }
+
+    private void SubscribeToSettings()
+    {
+        if (GameSettings.Instance == null) return;
+        GameSettings.Instance.OnMouseSensitivityChanged += HandleMouseSensitivityChanged;
+        GameSettings.Instance.OnInvertYChanged += HandleInvertChanged;
+        ApplySettingsSnapshot();
+    }
+
+    private void UnsubscribeFromSettings()
+    {
+        if (GameSettings.Instance == null) return;
+        GameSettings.Instance.OnMouseSensitivityChanged -= HandleMouseSensitivityChanged;
+        GameSettings.Instance.OnInvertYChanged -= HandleInvertChanged;
+    }
+
+    private void ApplySettingsSnapshot()
+    {
+        if (GameSettings.Instance == null)
+        {
+            currentMouseSensitivity = mouseSensitivity;
+            invertMultiplier = 1f;
+            return;
+        }
+
+        currentMouseSensitivity = GameSettings.Instance.MouseSensitivity;
+        invertMultiplier = GameSettings.Instance.InvertYAxis ? -1f : 1f;
+    }
+
+    private void HandleMouseSensitivityChanged(float value)
+    {
+        currentMouseSensitivity = value;
+    }
+
+    private void HandleInvertChanged(bool enabled)
+    {
+        invertMultiplier = enabled ? -1f : 1f;
     }
 
     private void HandleMovement()

@@ -1464,6 +1464,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 857246732}
   m_CullTransparentMesh: 1
+--- !u!1 &881392840
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 881392842}
+  - component: {fileID: 881392841}
+  m_Layer: 0
+  m_Name: Settings
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &881392841
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 881392840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4a3b2ec399c6f14b9f3cf5d023785bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultMouseSensitivity: 2
+  minMouseSensitivity: 0.5
+  maxMouseSensitivity: 6
+  defaultMasterVolume: 0.8
+--- !u!4 &881392842
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 881392840}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 958.3342, y: 438.9097, z: 0.037856407}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &928058490
 GameObject:
   m_ObjectHideFlags: 0
@@ -2745,7 +2793,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69377794a1638e34593ad26089fb59af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  backendBaseUrl: http://localhost:8000
+  backendBaseUrl: https://fpsmilitarygame.online
   autoDetectBackendUrl: 1
   autoSaveInterval: 5
   profileAvatarImage: {fileID: 682918527}
@@ -2779,11 +2827,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3cd953debd7862468778625a6eeb133, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  backendBaseUrl: http://localhost:8000
+  backendBaseUrl: https://fpsmilitarygame.online
   autoDetectBackendUrl: 1
   gatePanel: {fileID: 0}
   gateMessage: {fileID: 0}
-  landingPageUrl: http://localhost:8000
+  landingPageUrl: https://fpsmilitarygame.online
   disabledBehaviours: []
   disabledObjects: []
 --- !u!1 &1387320622
@@ -3522,7 +3570,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac1e32d55f59e5642bfa9cbbbb5f60d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultUrl: 
+  defaultUrl: https://fpsmilitarygame.online
 --- !u!1 &1793348145
 GameObject:
   m_ObjectHideFlags: 0
@@ -4406,3 +4454,4 @@ SceneRoots:
   - {fileID: 1785703889}
   - {fileID: 1883736988}
   - {fileID: 1381551909}
+  - {fileID: 881392842}

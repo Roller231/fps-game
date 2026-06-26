@@ -60,16 +60,29 @@ public class ExternalLinkOpener : MonoBehaviour
             try
             {
                 System.Uri uri = new System.Uri(pageUrl);
-                // Landing page runs on same host, port 8000
-                return $"{uri.Scheme}://{uri.Host}:8000";
+                bool isLocalHost = uri.Host.Equals("localhost", System.StringComparison.OrdinalIgnoreCase) ||
+                                   uri.Host.Equals("127.0.0.1");
+
+                if (isLocalHost)
+                {
+                    // Landing page runs on localhost:8000
+                    return $"{uri.Scheme}://{uri.Host}";
+                }
+                else
+                {
+                    // Production: same host without port
+                    return $"{uri.Scheme}://{uri.Host}";
+                }
             }
             catch (System.Exception ex)
             {
                 Debug.LogWarning($"[ExternalLinkOpener] Failed to parse URL: {ex.Message}");
             }
         }
+#elif UNITY_EDITOR
+        return "https://fpsmilitarygame.online";
 #endif
         // Fallback for Editor or if URL parsing fails
-        return "http://localhost:8000";
+        return "https://fpsmilitarygame.online";
     }
 }

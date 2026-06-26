@@ -13,7 +13,7 @@ using UnityEngine.SceneManagement;
 public class ProfileService : MonoBehaviour
 {
     [Header("Backend")]
-    [SerializeField] private string backendBaseUrl = "http://localhost:8000";
+    [SerializeField] private string backendBaseUrl = "https://fpsmilitarygame.online";
     [SerializeField] private bool autoDetectBackendUrl = true;
 
     [Header("Auto-save")]
@@ -63,8 +63,18 @@ public class ProfileService : MonoBehaviour
             if (!string.IsNullOrEmpty(pageUrl))
             {
                 System.Uri uri = new System.Uri(pageUrl);
-                // Assume backend runs on same host, port 8000
-                backendBaseUrl = $"{uri.Scheme}://{uri.Host}:8000";
+                bool isLocalHost = uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase) ||
+                                   uri.Host.Equals("127.0.0.1");
+
+                if (isLocalHost)
+                {
+                    backendBaseUrl = $"{uri.Scheme}://{uri.Host}:8000";
+                }
+                else
+                {
+                    backendBaseUrl = $"{uri.Scheme}://{uri.Host}";
+                }
+
                 Debug.Log($"[ProfileService] Auto-detected backend URL: {backendBaseUrl}");
             }
 #endif

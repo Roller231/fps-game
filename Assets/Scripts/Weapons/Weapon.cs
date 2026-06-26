@@ -190,7 +190,8 @@ public class Weapon : MonoBehaviour
                     bool playBloodFx = blood || hasEnemyAI;
                     if (playBloodFx)
                     {
-                        if (data.hitmarkerSound != null) audioSource.PlayOneShot(data.hitmarkerSound);
+                        if (data.hitmarkerSound != null && (GameSettings.Instance == null || GameSettings.Instance.HitmarkerSoundsEnabled))
+                            audioSource.PlayOneShot(data.hitmarkerSound);
                         if (data.enemyImpactPrefab != null)
                         {
                             var efx = Instantiate(data.enemyImpactPrefab, hit.point, Quaternion.LookRotation(hit.normal));

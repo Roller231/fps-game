@@ -8,6 +8,7 @@ public class PauseMenu : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private GameObject pausePanel;
+    [SerializeField] private GameObject settingsPanel;
     [SerializeField] private WeaponShop weaponShop;
 
     public static bool IsPaused { get; set; } = false;
@@ -17,6 +18,9 @@ public class PauseMenu : MonoBehaviour
     {
         if (pausePanel != null)
             pausePanel.SetActive(false);
+
+        if (settingsPanel != null)
+            settingsPanel.SetActive(false);
 
         if (weaponShop == null)
             weaponShop = FindObjectOfType<WeaponShop>();
@@ -54,6 +58,9 @@ public class PauseMenu : MonoBehaviour
         if (pausePanel != null)
             pausePanel.SetActive(true);
 
+        if (settingsPanel != null)
+            settingsPanel.SetActive(false);
+
         // Показываем и разблокируем курсор для меню
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -78,6 +85,21 @@ public class PauseMenu : MonoBehaviour
             Resume();
         else
             Pause();
+    }
+
+    public void OpenSettings()
+    {
+        if (!isPaused)
+            Pause();
+
+        if (settingsPanel != null)
+            settingsPanel.SetActive(true);
+    }
+
+    public void CloseSettings()
+    {
+        if (settingsPanel != null)
+            settingsPanel.SetActive(false);
     }
 
 

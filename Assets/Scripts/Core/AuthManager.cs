@@ -10,13 +10,13 @@ using UnityEngine.UI;
 public class AuthManager : MonoBehaviour
 {
     [Header("Backend")]
-    [SerializeField] private string backendBaseUrl = "http://localhost:8000";
+    [SerializeField] private string backendBaseUrl = "https://fpsmilitarygame.online";
     [SerializeField] private bool autoDetectBackendUrl = true;
 
     [Header("UI")]
     [SerializeField] private GameObject gatePanel;
     [SerializeField] private Text gateMessage;
-    [SerializeField] private string landingPageUrl = "http://localhost:8000";
+    [SerializeField] private string landingPageUrl = "https://fpsmilitarygame.online";
 
     [Header("Gameplay Locks")]
     [SerializeField] private Behaviour[] disabledBehaviours;
@@ -41,8 +41,21 @@ public class AuthManager : MonoBehaviour
             if (!string.IsNullOrEmpty(pageUrl))
             {
                 System.Uri uri = new System.Uri(pageUrl);
-                backendBaseUrl = $"{uri.Scheme}://{uri.Host}:8000";
-                landingPageUrl = $"{uri.Scheme}://{uri.Host}:8000";
+                bool isLocalHost = uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase) ||
+                                   uri.Host.Equals("127.0.0.1");
+
+                string baseAuthority = $"{uri.Scheme}://{uri.Host}";
+                if (isLocalHost)
+                {
+                    backendBaseUrl = $"{uri.Scheme}://{uri.Host}:8000";
+                    landingPageUrl = backendBaseUrl;
+                }
+                else
+                {
+                    backendBaseUrl = baseAuthority;
+                    landingPageUrl = baseAuthority;
+                }
+
                 Debug.Log($"[AuthManager] Auto-detected backend URL: {backendBaseUrl}");
             }
 #endif
@@ -70,6 +83,10 @@ public class AuthManager : MonoBehaviour
 #if UNITY_WEBGL && !UNITY_EDITOR
         string url = Application.absoluteURL;
 #else
+#if UNITY_EDITOR
+        string url = "https://fpsmilitarygame.online/?token=JtteDXi_B_sdh092LHg2D5v9cs-BrEsDi8d74dyuo3MtFV-jdBb6BcwFVPo0-3Su";
+        Debug.Log("[AuthManager] UNITY_EDITOR fallback token applied");
+#else
         string url = Application.absoluteURL;
         if (string.IsNullOrEmpty(url))
         {
@@ -77,10 +94,11 @@ public class AuthManager : MonoBehaviour
             Debug.Log($"[AuthManager] absoluteURL empty, env GAME_LAUNCH_URL='{url}'");
             if (string.IsNullOrEmpty(url))
             {
-                url = "http://localhost:8000/?token=KWssV6lMegxpwYsZB9oXcXrh5ZGn6tHgiOm4bES3YUjun7hgi6IT937QJ5njoXbo";
+                url = "https://fpsmilitarygame.online/?token=JtteDXi_B_sdh092LHg2D5v9cs-BrEsDi8d74dyuo3MtFV-jdBb6BcwFVPo0-3Su";
                 Debug.Log("[AuthManager] Using fallback editor token");
             }
         }
+#endif
 #endif
         if (string.IsNullOrEmpty(url))
             return null;
